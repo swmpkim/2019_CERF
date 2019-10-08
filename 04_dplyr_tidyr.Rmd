@@ -199,3 +199,65 @@ ebird %>%
 ***  
 ***  
 
+## Modifying data frames with `mutate()`  
+
+
+
+
+***  
+*** 
+
+## Group-wise operations with `group_by()` and `summarize()`  
+
+```{r}
+ebird %>% 
+    group_by(state) %>% 
+    summarize(mean_presence = mean(presence, na.rm = TRUE),
+              max_presence = max(presence, na.rm = TRUE)) %>% 
+    glimpse()
+```
+
+
+
+```{r}
+ebird %>% 
+    group_by(state, species) %>% 
+    summarize(mean_presence = mean(presence, na.rm = TRUE),
+              max_presence = max(presence, na.rm = TRUE)) %>% 
+    glimpse()
+```
+
+
+You can also sort using `arrange()`. Let's put this in order by species, then state:  
+
+```{r}
+ebird %>% 
+    group_by(state, species) %>% 
+    summarize(mean_presence = mean(presence, na.rm = TRUE),
+              max_presence = max(presence, na.rm = TRUE)) %>% 
+    arrange(species, state) %>% 
+    glimpse()
+```
+
+Or put it in order by `max_presence`:  
+
+```{r}
+ebird %>% 
+    group_by(state, species) %>% 
+    summarize(mean_presence = mean(presence, na.rm = TRUE),
+              max_presence = max(presence, na.rm = TRUE)) %>% 
+    arrange(max_presence) %>% 
+    glimpse()
+```
+
+
+To go from highest to lowest instead:  
+
+```{r}
+ebird %>% 
+    group_by(state, species) %>% 
+    summarize(mean_presence = mean(presence, na.rm = TRUE),
+              max_presence = max(presence, na.rm = TRUE)) %>% 
+    arrange(desc(max_presence)) %>% 
+    glimpse()
+```
