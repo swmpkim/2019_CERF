@@ -80,7 +80,7 @@ Note, that's not something you want to do if you actually need to work with the 
 
 ### mini-challenge 1  
 
-How could we pull out birds in Alaska, before 2010? (Hint: you can use the symbols to filter numbers on dates too)  
+How could we pull out birds in Alaska (AK), before 2010? (Hint: you can use the same symbols that you would to filter numbers)  
 
 ```{r}
 
@@ -196,10 +196,60 @@ ebird %>%
 ```
 
 
+
+### mini-challenge 3  
+
+From the ebird data, subset to only include the species American Coot, from the states FL, AL, and MS. Keep only the state, year, and presence columns. What is the proper order of operations in this case?  
+
+```{r}
+
+```
+
+
 ***  
 ***  
 
 ## Modifying data frames with `mutate()`  
+
+It's easy to make a new variable out of other variables in the data frame using `mutate()`. This operates on rows. The following command multiplies the values in two columns together to generate a third column:    
+
+```{r}
+ebird_mutated <- ebird %>% 
+    mutate(bird_count = samplesize * presence)
+```
+
+
+You can also do simple math on a column:  
+
+```{r}
+ebird %>% 
+    mutate(log_samplesize = log(samplesize),
+           samplesizex10 = 10 * samplesize) %>% 
+    glimpse()
+```
+
+
+You can even use a column immediately after creating it!  
+
+```{r}
+ebird %>% 
+    mutate(bird_count = samplesize * presence,
+           mathed_count = bird_count / 10) %>% 
+    glimpse()
+```
+
+
+### mini-challenge 4  
+
+And now that we've started creating more columns, it might make sense to get rid of some old ones. How would you remove samplesize and presence from this data frame?  
+
+```{r}
+ebird %>% 
+    mutate(bird_count = samplesize * presence,
+           mathed_count = bird_count / 10) %>% 
+    
+    glimpse()
+```
 
 
 
@@ -208,6 +258,8 @@ ebird %>%
 *** 
 
 ## Group-wise operations with `group_by()` and `summarize()`  
+
+Say we want to find out how many birds were seen by state in this dataset. We can do that. These operations are also great for lumping data into daily, monthly, or yearly averages (like our SWMP datasets).    
 
 ```{r}
 ebird %>% 
@@ -218,6 +270,8 @@ ebird %>%
 ```
 
 
+
+We can also group by combinations of multiple variables:  
 
 ```{r}
 ebird %>% 
@@ -238,6 +292,7 @@ ebird %>%
     arrange(species, state) %>% 
     glimpse()
 ```
+
 
 Or put it in order by `max_presence`:  
 
@@ -261,3 +316,15 @@ ebird %>%
     arrange(desc(max_presence)) %>% 
     glimpse()
 ```
+
+
+
+```{r}
+ebird %>% 
+    select(state, year, samplesize) %>% 
+    distinct() %>% 
+    glimpse()
+```
+
+
+### (not-so-) mini-challenge 5  
