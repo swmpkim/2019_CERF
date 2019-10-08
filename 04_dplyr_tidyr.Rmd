@@ -24,8 +24,25 @@ First, let's read in the ebird data and remind ourselves what's in it:
 
 ```{r}
 ebird <- read.csv(here::here("data", "eBird_workshop.csv"), stringsAsFactors = FALSE)
-glimpse(ebird)
+glimpse(ebird)   # 183,742 rows
 ```
+
+
+
+We may not talk about this, but there are (presumably accidentally) duplicate rows in this data frame. We can see them with:  
+
+```{r}
+janitor::get_dupes(ebird)   # 22 duplicates = 11 that need to go
+```
+
+They are exact copies of other rows, not any data entry problems (although `janitor::get_dupes()` is very helpful in finding errors like mis-typing a site name), so we'll just get rid of them by using `dplyr::distinct()` to keep only unique rows.  
+
+```{r}
+ebird <- dplyr::distinct(ebird)
+glimpse(ebird)   # 183,731 rows
+```
+
+
 
 
 ## Choose _rows_: `filter()`  
@@ -328,3 +345,53 @@ ebird %>%
 
 
 ### (not-so-) mini-challenge 5  
+
+
+***  
+***  
+***  
+
+# Moving data around with `tidyr`  
+
+# PROBABLY WORTH TALKING ABOUT TIDY DATA GENERALLY AND HADLEY'S PAPER  
+
+The two major functions in `tidyr` are `pivot_longer()` to make your data frame tall and narrow, and `pivot_wider()` to make it shorter and wider. If you've ever heard of/used `gather()` and `spread()`, these are newer, better versions. `gather()` and `spread()` won't go away, but they are deprecated - no longer under active development. It is best to start using the new `pivot` functions moving forward.    
+
+Very often, wide data is the most readable for people. Here is an example:  
+
+# INSERT EXAMPLE OF WIDE DATA  
+
+
+But to work well with R (and many other languages and analytical software), it is actually better for data to be in a "long" format:  
+
+# INSERT EXAMPLE OF LONG DATA  
+
+
+## long-to-wide  
+
+The data sets we've been using are in a long format. Can you picture a more readable way to present some of this ebird data? Maybe a column for each state, a row for each species/year combination, and presence in the main cells of the table? We can do that, fairly easily.  
+
+```{r}
+ebird_wide2 <- ebird %>% 
+    select(-samplesize) %>% 
+    pivot_wider(names_from = state,
+                values_from = presence)
+
+ebird_wide2 %>% 
+    arrange(species, year) %>% 
+    View()
+```
+
+
+### mini-challenge 6  
+
+You can make a more bite-sized table by filtering to a single species, state, or year of interest. Try making a table of American Coot presence in AL, FL, and MS. Give each state its own column, and each year its own row. (There is more than one way to do this, so compare your answer to your neighbors! Hint: you can use `select()` and/or `filter()` at the beginning of a pipe, and pivot_wider at the end.)    
+
+```{r}
+
+```
+
+
+## wide-to-long  
+
+What you'll encounter more often is getting data in a wide format, and needing to narrow it. The function for this is `pivot_longer()`. It's similar to `pivot_wider()`.   
