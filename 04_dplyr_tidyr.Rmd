@@ -346,6 +346,7 @@ ebird %>%
 
 ### (not-so-) mini-challenge 5  
 
+# INSERT CHALLENGE HERE  
 
 ***  
 ***  
@@ -361,11 +362,157 @@ Very often, wide data is the most readable for people. Here is an example:
 
 # INSERT EXAMPLE OF WIDE DATA  
 
+From Chapter 9 of *The Statistical Sleuth*, 2nd edition, by Ramsey and Schafer. Original data from Huey et al., "Rapid Evolution of a Geographic Cline in Size in an Introduced Fly", *Science* 287 (2000): 308-309.  
+
+These are mean and standard errors of log-transformed wing length in invasive flies. The data has been aggregated and summarized for presentation; we are looking at grouped values.    
+
+```{r}
+flies_wide <- read.csv(here::here("data", "flies.csv"), stringsAsFactors = FALSE)
+glimpse(flies_wide)
+```
+
+We will simplify this a bit to make it easier to learn pivoting.
+
+```{r}
+flies <- flies_wide %>% 
+    select(Continent, 
+           Latitude,
+           Female = Female.mean,     # renaming as I select
+           Male = Male.mean)
+glimpse(flies)
+```
+
+In this data set, wing lengths were measured in both female and male flies. Sex is actually a variable, and we can work with the data a little more easily if we make it a column. So we will `pivot_longer()`.  
+
+```{r}
+flies_long <- pivot_longer(flies, cols = c(Female, Male), names_to = "sex", values_to = "wing_length")
+glimpse(flies_long)
+```
+
+This format makes it easier to plot in different ways, or calculate different types of averages. Let's start with some plots.  
+
+
+```{r}
+ggplot(flies_long) +
+    geom_point(aes(y = Latitude, x = wing_length), 
+               size = 3)
+```
+
+Hmmm, looks like we have two different size classes. Could that be related to sex? Let's color by sex (remember, because this is showing something in the data, it goes inside `aes()`):    
+
+```{r}
+ggplot(flies_long) +
+    geom_point(aes(y = Latitude, x = wing_length, col = sex), 
+               size = 3)
+```
+
+We may also be curious about whether continent plays a role, and we can represent that by shape.  
+
+```{r}
+ggplot(flies_long) +
+    geom_point(aes(y = Latitude, x = wing_length, col = sex, shape = Continent), 
+               size = 3)
+```
+
+Alternately, we could use shape for sex and color for continent.  
+
+When it comes to grouping and summarizing data, tidy data is also easier to use. We will continue to work with the simplified data for a moment. 
+
+Let's say we want to find the average wing length by sex, by continent. That's doable with appropriate subsetting in the original data frame, but it's even easier here:  
+
+```{r}
+flies_long %>% 
+    group_by(Continent, sex) %>% 
+    summarize(mean = mean(wing_length, na.rm = TRUE))
+```
+
+
+And if we simply want the mean by continent, disregarding sex (which may not be the best thing to do, but bear with me), that's exactly as easy:  
+
+```{r}
+flies_long %>% 
+    group_by(Continent) %>% 
+    summarize(mean = mean(wing_length, na.rm = TRUE))
+```
+
+
+#### not really a challenge  
+
+How would you find those averages from the original `flies` data frame?  
+
+```{r}
+# it's easy to generate an overall average by sex, but grouping by continent 
+# in the original context is tougher
+```
+
+You can get more complicated too, by using `pivot_longer_spec()` if you want to keep, e.g., all of the standard error and ratio columns too. Check out `vignette("pivot")` for more details.
+
+
+The opposite of `pivot_longer()` is `pivot_wider()`. Sometimes you have one observation split over multiple rows, like in a dataset we'll see shortly, and you want to make certain variables be their own columns. To learn how it works, we'll first widen the fly dataset back out, and then work on a slightly more complicated dataset.  
+
+```{r}
+flies_wide2 <- flies_long %>% 
+    pivot_wider(names_from = sex, values_from = wing_length)
+View(flies_wide2)
+```
+
+
+Now let's look at a dataset that has some more going on.  
+
+```{r}
+gtmnut <- read.csv(here::here("data", "GTM_2019nutrients.csv"), stringsAsFactors = FALSE)
+View(gtmnut)
+```
+
+This is how Shannon gets her nutrient measurements back from her lab. There is metadata on every row, with every nutrient. This can be very useful! But it can also make it hard to work with the data. So what we'll do is select only the columns we need: station, sample date, nutrient component, and value. Then we'll pivot it out so that each nutrient value is in its own column.  
+
+```{r}
+# also do some renaming along the way
+gtmnut_trimmed <- gtmnut %>% 
+    select(station = StationCode,
+           datetime = DateSampled,
+           nutrient = ComponentLong,
+           value = Result)
+View(gtmnut_trimmed)
+```
+
+Each sample spans many rows! We'll spread that out so each sample only takes up one row.  
+
+```{r}
+gtmnut_wide <- gtmnut_trimmed %>% 
+    pivot_wider(names_from = nutrient,
+                values_from = value)
+View(gtmnut_wide)
+```
+
+
+As you can see, we now have a LOT of columns, and there are special characters in their names. We'll start by cleaning up the names (remember this `janitor::clean_names()` function?), and then select only a few primary nutrients to work with.  
+
+```{r}
+gtmnut_wide <- janitor::clean_names(gtmnut_wide)
+View(gtmnut_wide)
+
+gtmnut_wide_trimmed <- gtmnut_wide %>% 
+    select(station, datetime, 
+           po4 = o_phosphate_p, 
+           nox = no2no3_n, 
+           fecal_coliform = fecal_coliforms_membrane_filter,
+           tss,
+           nh4 = ammonia_n,
+           total_p,
+           chla = chlorophyll_a_corrected)
+View(gtmnut_wide_trimmed)
+```
+
+
+
+#### end  
 
 But to work well with R (and many other languages and analytical software), it is actually better for data to be in a "long" format:  
 
 # INSERT EXAMPLE OF LONG DATA  
 
+SHANNON'S nutrient data that they get back from the lab! Sometimes your data is *too* long, and every observation is split over multiple rows for various reasons. To work with it, we want to give each nutrient its own column (and do something else with all the associated metadata like MDL etc., but that's beyond the scope).    
 
 ## long-to-wide  
 
