@@ -362,6 +362,125 @@ Very often, wide data is the most readable for people. Here is an example:
 
 # INSERT EXAMPLE OF WIDE DATA  
 
+Good example! C_elegans_tox.csv - a portion of a spreadsheet from Boyd et al., 2015
+# look up this citation and link to download data  
+in which they compiled toxicity effects of various chemicals on the worm *C. elegans*.  
+
+Let's first take a look at the file:  
+
+```{r}
+tox <- read.csv(here::here("data", "C_elegans_tox.csv"), stringsAsFactors = FALSE)
+View(tox)
+```
+
+
+This spreadsheet was originally in Excel, and had the $\mu$ symbol for micro-molar. That turned into a `?` when it was saved as csv, and here upon being read in, it just became a period. So most of these columns that end in `.M` should be interpreted as micromolar.  
+
+
+We'll subset to just the portion that we might want to re-shape, which is the columns that include concentration in the column name. We'll also clean names along the way.  
+
+```{r}
+tox_cleaned <- tox %>% 
+    janitor::clean_names() %>% 
+    select(1:10)
+
+
+tox_cleaned2 <- tox[1:12, 1:10]   # just pull out the first 12 chemicals to make this dataset more manageable
+```
+
+
+We want to do a few things here: we want a single column for the value of mean *C. elegans* response, and we want to extract the concentrations from the column names and turn them into a variable that we'll call "conc".  
+
+Let's start without worrying about messing with the column names. This is the format we'd use. If we didn't have so many columns to pivot, we could use the column names.  
+
+```{r}
+tox_cleaned %>% 
+    pivot_longer(cols = 4:10, names_to = "conc", values_to = "response")
+```
+
+
+We can get rid of common prefixes by using `names_prefix`:  
+
+```{r}
+tox_cleaned %>% 
+    pivot_longer(cols = 4:10, names_to = "conc", values_to = "response",
+                 names_prefix = "c_elegans_mean_response")
+```
+
+
+We could also select the columns to pivot by what they start with:  
+
+```{r}
+tox_cleaned %>% 
+    pivot_longer(cols = starts_with("c_elegans_mean_response"), names_to = "conc", values_to = "response")
+```
+
+
+And we can separate the column as we pivot it:  
+
+```{r}
+tox_cleaned %>% 
+    pivot_longer(cols = starts_with("c_elegans_mean_response"), 
+                 names_to = c("org_genus", "org_species", "type", "var", "conc1", "conc2", "units"),
+                 names_sep = "_",
+                 values_to = "response")
+```
+
+
+
+
+```{r}
+tox_long <- tox_cleaned2 %>% 
+    pivot_longer(cols = starts_with("C.elegans.mean.response"),
+                 names_to = c("prefix","conc","units"),
+                 names_sep = "\\.\\.",
+                 values_to = "response") %>% 
+    mutate(conc = as.numeric(conc))
+
+
+ggplot(tox_long) +
+    geom_point(aes(x = conc, y = response, color = Name), size = 3)
+
+p <- ggplot(tox_long) +
+    geom_point(aes(x = conc, y = response, color = Name), size = 3)
+
+p +
+    facet_wrap(~Name)
+
+p +
+    facet_wrap(~Name) +
+    scale_x_log10()
+
+
+p +
+    facet_wrap(~Name) +
+    scale_x_log10() +
+    theme_bw() +
+    labs(title = "Toxicity curves for C. elegans",
+         x = "log(concentration)",
+         y = "response",
+         color = "Chemical name")
+
+
+# or remove the legend:
+p +
+    facet_wrap(~Name) +
+    scale_x_log10() +
+    theme_bw() +
+    labs(title = "Toxicity curves for C. elegans",
+         x = "log(concentration)",
+         y = "response") +
+    theme(legend.position = "none")
+```
+
+
+
+
+### end  
+
+
+
+
 From Chapter 9 of *The Statistical Sleuth*, 2nd edition, by Ramsey and Schafer. Original data from Huey et al., "Rapid Evolution of a Geographic Cline in Size in an Introduced Fly", *Science* 287 (2000): 308-309.  
 
 These are mean and standard errors of log-transformed wing length in invasive flies. The data has been aggregated and summarized for presentation; we are looking at grouped values.    
