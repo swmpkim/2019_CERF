@@ -43,7 +43,7 @@ ebird %>%
     group_by(state) %>% 
     summarize(mean_presence = mean(presence, na.rm = TRUE),
               max_presence = max(presence, na.rm = TRUE)) %>% 
-    glimpse()
+    View()
 ```
 
 
@@ -55,7 +55,7 @@ ebird %>%
     group_by(state, species) %>% 
     summarize(mean_presence = mean(presence, na.rm = TRUE),
               max_presence = max(presence, na.rm = TRUE)) %>% 
-    glimpse()
+    View()
 ```
 
 
@@ -147,7 +147,7 @@ ebird %>%
 ```
 
 
-To go from highest to lowest instead, use `desc()`:  
+If you want the highest number at the top instead, use `desc()`:  
 
 ```{r}
 ebird %>% 
@@ -203,7 +203,7 @@ wq_trimmed %>%
 
 # PROBABLY WORTH TALKING ABOUT TIDY DATA GENERALLY AND HADLEY'S PAPER  
 
-The two major functions in `tidyr` are `pivot_longer()` to make your data frame tall and narrow, and `pivot_wider()` to make it shorter and wider. If you've ever heard of/used `gather()` and `spread()`, these are newer, better versions. `gather()` and `spread()` won't go away, but they are deprecated - no longer under active development. It is best to start using the new `pivot` functions moving forward.    
+The two major functions in `tidyr` are `pivot_longer()` to make your data frame tall and narrow, and `pivot_wider()` to make it shorter and wider. If you've ever heard of/used `gather()` and `spread()`, these are newer, better versions. `gather()` and `spread()` won't go away, but they are *deprecated* - no longer under active development. It is best to start using the new `pivot` functions moving forward. If you *haven't* heard of these functions, you are about to learn a very useful topic.     
 
 Very often, wide data is the most readable for people. Here is an example:  
 
@@ -213,15 +213,15 @@ Good example! C_elegans_tox.csv - a portion of a spreadsheet from Boyd et al., 2
 # look up this citation and link to download data  
 in which they compiled toxicity effects of various chemicals on the worm *C. elegans*.  
 
-Let's first take a look at the file:  
+Let's first take a look at the file. I have already done a bit of cleanup (not too much) and greatly reduced the number of rows - this file originally had 960 rows! I've only kept the first 30. It's not hard to see why it was stored in this wide format. But for certain purposes, it needs to be rearranged into a longer format, and that can be done with just a few lines of code. (It really blows people's minds when you tell them you can "easily" rearrange so much data.)  
+
+# The original data can be downloaded here:  
 
 ```{r}
-tox <- read.csv(here::here("data", "C_elegans_tox.csv"), stringsAsFactors = FALSE)
+tox <- read.csv(here::here("data", "C_elegans_tox.csv"), stringsAsFactors = FALSE) 
 View(tox)
 ```
 
-
-This spreadsheet was originally in Excel, and had the $\mu$ symbol for micro-molar. That turned into a `?` when it was saved as csv, and here upon being read in, it just became a period. So most of these columns that end in `.M` should be interpreted as micromolar.  
 
 
 We'll subset to just the portion that we might want to re-shape, which is the columns that include concentration in the column name. We'll also clean names along the way.  
@@ -230,9 +230,6 @@ We'll subset to just the portion that we might want to re-shape, which is the co
 tox_cleaned <- tox %>% 
     janitor::clean_names() %>% 
     select(1:10)
-
-
-tox_cleaned2 <- tox[1:12, 1:10]   # just pull out the first 12 chemicals to make this dataset more manageable
 ```
 
 
