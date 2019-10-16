@@ -47,7 +47,7 @@ glimpse(ebird)   # 183,731 rows
 
 ## Choose _rows_: `filter()`  
 
-This has a lot of rows. We might only be interested in observations about a single bird, which means we want to choose rows. To do this, we use the verb `filter()`:  
+This has a lot of rows. We might only be interested in observations about a single bird species, or from a single state, which means we want to choose rows. To do this, we use the verb `filter()`:  
 
 ```{r}
 ebird_AK <- ebird %>% 
@@ -97,7 +97,7 @@ Note, that's not something you want to do if you actually need to work with the 
 
 ### mini-challenge 1  
 
-How could we pull out birds in Alaska (AK), before 2010? (Hint: you can use the same symbols that you would to filter numbers)  
+How could we pull out birds in Alaska (AK), before 2010? (Hint: you can use the same symbols on year that you would use with any other numbers)  
 
 ```{r}
 
@@ -115,7 +115,7 @@ Perhaps the easiest is to make a vector of the states you're interested in:
 my_states <- c("AK", "AL", "MS")
 ```
 
-And then use `%in%` in the filter statement, to say, e.g. "any of the states in this vector": 
+And then use `%in%` in the filter statement, to say, e.g. "any of the states _in_ this vector": 
 ```{r}
 ebird_mystates <- ebird %>% 
         filter(year == 2008,
@@ -137,7 +137,7 @@ ebird %>%
 
 ### mini-challenge 2  
 
-How would you filter the data to contain only the species "American Coot" from MS and AL (your instructors' states), in all years *except* 2010? Assign this object to a data frame and verify (using `unique()`) that you did it right.    
+How would you filter the data to contain only the species "American Coot" from MS and FL (your instructors' states), in all years *except* 2010? Assign this object to a data frame and verify (using `unique()`) that you did it right.    
 
 ```{r}
 
@@ -457,7 +457,7 @@ p +
     scale_x_log10() +
     theme_bw() +
     labs(title = "Toxicity curves for C. elegans",
-         x = "log(concentration)",
+         x = "log of concentration (uM)",
          y = "response",
          color = "Chemical name")
 
@@ -468,7 +468,7 @@ p +
     scale_x_log10() +
     theme_bw() +
     labs(title = "Toxicity curves for C. elegans",
-         x = "log(concentration)",
+         x = "log of concentration (uM)",
          y = "response") +
     theme(legend.position = "none")
 ```
