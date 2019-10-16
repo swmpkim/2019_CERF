@@ -9,7 +9,6 @@ output:
 
 ```{r setup}
 library(tidyverse)
-library(janitor)
 library(here)
 ```
 
@@ -46,7 +45,7 @@ ggplot(data = wq) +
 
 ## Your Turn 3
 
-Replace this scatterplot with one that draws boxplots. Use the cheatsheet. Try your best guess. Notice that we are now using the dataframe `d_wq` which contains *daily* averages of the water quality data.
+Replace this scatterplot with one that draws boxplots. Use the cheatsheet. Try your best guess.
 
 ```{r}
 ggplot(data = wq) +
