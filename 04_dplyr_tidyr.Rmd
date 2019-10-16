@@ -13,6 +13,7 @@ knitr::opts_chunk$set(echo = TRUE)
 library(dplyr)
 library(tidyr)
 library(here)
+library(ggplot2)
 ```
 
 
@@ -226,47 +227,155 @@ From the ebird data, subset to only include the species American Coot, from the 
 ***  
 ***  
 
-## Modifying data frames with `mutate()`  
+## Setup for the next bit of the workshop  
 
-It's easy to make a new variable out of other variables in the data frame using `mutate()`. This operates on rows. The following command multiplies the values in two columns together to generate a third column:    
+We're going to switch datasets here, to one that's a little more complicated: water quality data! Shannon has downloaded monitoring data from several National Estuarine Research Reserves for the year 2016, and has already winnowed it down a bit to daily averages of several parameters that we measure. We will use your newfound `select()` and `filter()` skills to make it an even smaller data frame, and then we'll learn how to calculate new columns and do some group-wise summaries.  
 
 ```{r}
-ebird_mutated <- ebird %>% 
-    mutate(bird_count = samplesize * presence)
+wq <- read.csv(here::here("data", "daily_wq.csv"), stringsAsFactors = FALSE)
+glimpse(wq)
 ```
 
 
-You can also do simple math on a column:  
+### mini-challenge 4  
+
+Because this is so important, I will provide working code in a chunk below. But please attempt it yourself first!!!  
+
+We have read in the daily water quality data for a few stations. Create a new data frame called `wq_trimmed` where, from `wq`, you:    
+
++  **Select** the following columns:  station_code, month, dat, temp, sal, do_pct, and depth.  
++  **Filter** for rows where `depth` is *not* missing. (Hint: `is.na` is the function that checks to see if a value *is* missing. How would you look for "not" `is.na`?   It's similar to "not equal to" from above.)
 
 ```{r}
-ebird %>% 
-    mutate(log_samplesize = log(samplesize),
-           samplesizex10 = 10 * samplesize) %>% 
-    glimpse()
+
+```
+
+
+
+
+How much has been removed from the data frame?  
+
+```{r}
+dim(wq)
+dim(wq_trimmed)
+
+# can subtract both rows and columns at once!
+dim(wq) - dim(wq_trimmed)
+
+# why did all those rows go away?
+# note: wrapping an entire piece of code in parentheses both
+# saves the object AND prints it to screen
+(stns_all <- unique(wq$station_code))
+(stns_trimmed <- unique(wq_trimmed$station_code))
+
+# here's how to find the station code that's in one and not the other
+# start by asking, for each value in stns_all, "is this in stns_trimmed?":
+stns_all %in% stns_trimmed
+
+# note that returned logical values
+# we want to know which station returned FALSE
+# so we select - which is actually easier to do in base R than tidyverse
+# but the syntax can be tough to wrap your head around
+stns_all[!(stns_all %in% stns_trimmed)]
+```
+
+
+Some SWMP stations report `depth`, which is water depth above the data logger; and others report `level`, which is water surface relative to a standard datum (NAVD88). There is an important distinction that's irrelevant for what we want to cover today, so here we have only kept the stations that report `depth`.  
+
+
+
+
+### mini-challenge 4 answer   
+
+Last chance to try it yourself.... 
+but if you didn't get it to work, run this chunk:  
+
+```{r}
+wq_trimmed <- wq %>% 
+    select(station_code, month, day, temp, sal, do_pct, depth) %>% 
+    filter(!is.na(depth))
+```
+
+
+
+## Modifying data frames with `mutate()`  
+
+
+It's easy to make a new variable out of other variables in the data frame using `mutate()`. This operates on rows. Say we want to talk about water depth (or make a graph!) to the public - we might want to change the units from meters to feet. That's simple multiplication! So here, we'll add a column to the data frame.      
+
+```{r}
+wq_trimmed <- wq_trimmed %>% 
+    mutate(depth_ft = depth * 3.28)
+View(wq_trimmed)
+```
+
+
+You can also use other columns. You can use them in mathematical expressions, or just combine them:        
+
+```{r}
+wq_trimmed <- wq_trimmed %>% 
+    mutate(monthday = paste(month, day, sep = "-"),
+           meaningless_thing = sal + temp)
+View(wq_trimmed)
 ```
 
 
 You can even use a column immediately after creating it!  
 
 ```{r}
-ebird %>% 
-    mutate(bird_count = samplesize * presence,
-           mathed_count = bird_count / 10) %>% 
-    glimpse()
+wq_trimmed %>% 
+    mutate(monthday = paste(month, day, sep = "-"),
+           meaningless_thing = sal + temp,
+           even_more_meaningless_thing = meaningless_thing + 5) %>% 
+    View()
 ```
 
 
-### mini-challenge 4  
 
-And now that we've started creating more columns, it might make sense to get rid of some old ones. How would you remove samplesize and presence from this data frame?  
+### mini-challenge 5  
+
+There are two parts to this. You can approach them separately or within the same series of pipes. Remember to save the result as the new, better, `wq_trimmed` data frame!   
+
+1.  Now that we've started creating more columns, it might make sense to get rid of some old ones. Remove `monthday` and `meaningless_thing` from the `wq_trimmed` data frame.  
+1.  The same person that wants to see `depth` in feet rather than meters *also* wants you to turn `temp` into Fahrenheit, from Celsius. You've looked up the conversion. Now create a new column, `temp_f`, with the new variable.   **F = (9/5)(temp in C) + 32**
+
+
+As with mini-challenge 4, the answer is below. No peeking!  
+
 
 ```{r}
-ebird %>% 
-    mutate(bird_count = samplesize * presence,
-           mathed_count = bird_count / 10) %>% 
-    
-    glimpse()
+
 ```
+
+
+
+
+
+
+
+
+
+
+### mini-challenge 5 answer  
+
+```{r}
+wq_trimmed <- wq_trimmed %>% 
+    select(-monthday, -meaningless_thing) %>% 
+    mutate(temp_f = (9/5) * temp + 32)
+View(wq_trimmed)
+```
+
+
+
+
+# FEELS LIKE BREAK TIME  
+
+If making a graph relaxes you, make a scatterplot of `depth` by `depth_ft` and reassure yourself that the points fall on a line. Play with other options too, to make the graph as pretty (or as ugly) as you like! 
+
+```{r}
+
+```
+
 
 
 
