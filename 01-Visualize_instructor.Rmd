@@ -9,17 +9,13 @@ output:
 
 ```{r setup}
 library(tidyverse)
-library(janitor)
 library(here)
 ```
 
 
-```{r}
+```{r loaddata}
 wq <- read.csv(here::here('data', 'monthly_wq.csv')) 
 
-wq
-
-dplyr::glimpse(wq)
 ```
 
 ## Quiz
@@ -46,7 +42,7 @@ ggplot(data = wq) +
 
 ## Your Turn 3
 
-Replace this scatterplot with one that draws boxplots. Use the cheatsheet. Try your best guess. Notice that we are now using the dataframe `d_wq` which contains *daily* averages of the water quality data.
+Replace this scatterplot with one that draws boxplots. Use the cheatsheet. Try your best guess.
 
 ```{r}
 ggplot(data = wq) +
@@ -54,6 +50,9 @@ ggplot(data = wq) +
 
 ggplot(data = wq) +
   geom_boxplot(mapping = aes(x = coast, y = temp))
+
+ggplot(data = wq) +
+  geom_boxplot(mapping = aes(x = coast, y = temp, color = state))
 
 ```
 
