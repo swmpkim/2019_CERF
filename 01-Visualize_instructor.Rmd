@@ -13,12 +13,9 @@ library(here)
 ```
 
 
-```{r}
+```{r loaddata}
 wq <- read.csv(here::here('data', 'monthly_wq.csv')) 
 
-wq
-
-dplyr::glimpse(wq)
 ```
 
 ## Quiz
@@ -53,6 +50,9 @@ ggplot(data = wq) +
 
 ggplot(data = wq) +
   geom_boxplot(mapping = aes(x = coast, y = temp))
+
+ggplot(data = wq) +
+  geom_boxplot(mapping = aes(x = coast, y = temp, color = state))
 
 ```
 
