@@ -9,6 +9,14 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+
+Additional resources to help teach this:
+Software Carpentry, Programming with R: 
+for loops:  http://swcarpentry.github.io/r-novice-inflammation/03-loops-R/index.html  
+
+whole lesson: http://swcarpentry.github.io/r-novice-inflammation/
+
+
 ```{r}
 # here's my entire functions and loops script from TTW 2019
 
