@@ -16,21 +16,22 @@ knitr::opts_chunk$set(echo = TRUE)
 library(dplyr)
 library(tidyr)
 library(here)
+library(stringr)
 library(ggplot2)
 ```
 
-If you don't still have the data frames in your environment, uncomment and run these lines of code (to comment or uncomment multiple lines, you can use the keyboard shortcut `Ctrl` + `Shift` + `C` on Windows and Linux; or `Cmd` + `Shift` + `C` on Mac):  
+If you don't still have the data frames in your environment, run these lines of code (they are also necessary to keep here for the purposes of knitting this document):  
 
 ```{r}
-# ebird <- read.csv(here::here("data", "eBird_workshop.csv"), stringsAsFactors = FALSE)
-# ebird <- dplyr::distinct(ebird)
-# 
-# wq <- read.csv(here::here("data", "daily_wq.csv"), stringsAsFactors = FALSE)
-# wq_trimmed <- wq %>% 
-#     select(station_code, month, day, temp, sal, do_pct, depth) %>% 
-#     filter(!is.na(depth)) %>% 
-#     mutate(depth_ft = depth * 3.28,
-#            temp_f = (9/5) * temp + 32)
+ebird <- read.csv(here::here("data", "eBird_workshop.csv"), stringsAsFactors = FALSE)
+ebird <- dplyr::distinct(ebird)
+
+wq <- read.csv(here::here("data", "daily_wq.csv"), stringsAsFactors = FALSE)
+wq_trimmed <- wq %>%
+    select(station_code, month, day, temp, sal, do_pct, depth) %>%
+    filter(!is.na(depth)) %>%
+    mutate(depth_ft = depth * 3.28,
+           temp_f = (9/5) * temp + 32)
 ```
 
 
@@ -224,23 +225,39 @@ View(tox)
 
 
 
-We'll subset to just the portion that we might want to re-shape, which is the columns that include concentration in the column name. We'll also clean names along the way.  
+We'll subset to just the portion that we might want to re-shape, which is the columns that include contain *C. elegans* response and a concentration in the column name.  
 
 ```{r}
 tox_cleaned <- tox %>% 
-    janitor::clean_names() %>% 
     select(1:10)
 ```
 
 
+## `pivot_longer()`  
+
 We want to do a few things here: we want a single column for the value of mean *C. elegans* response, and we want to extract the concentrations from the column names and turn them into a variable that we'll call "conc".  
 
-Let's start without worrying about messing with the column names. This is the format we'd use. If we didn't have so many columns to pivot, we could use the column names.  
+Let's start without worrying about messing with the column names. This is the format we'd use. If we didn't have so many columns to pivot, we could use the column names rather than positions ("4:10").  
 
 ```{r}
 tox_cleaned %>% 
-    pivot_longer(cols = 4:10, names_to = "conc", values_to = "response")
+    pivot_longer(cols = 4:10, names_to = "conc", values_to = "response") %>% 
+    View()
 ```
+
+Think about how we just changed the data frame. This is the key of the `pivot` functions: moving between the shape we started with and the shape we just made. All the other stuff is just details of how to make it all prettier - but when you understand the long/wide shapes, you're most of the way to doing what you need.  
+
+
+### extra options  
+
+
+We could also select the columns to pivot by what they start with (or end with, or contain):  
+
+```{r}
+tox_cleaned %>% 
+    pivot_longer(cols = starts_with("C.elegans.mean.response"), names_to = "conc", values_to = "response")
+```
+
 
 
 We can get rid of common prefixes by using `names_prefix`:  
@@ -248,45 +265,59 @@ We can get rid of common prefixes by using `names_prefix`:
 ```{r}
 tox_cleaned %>% 
     pivot_longer(cols = 4:10, names_to = "conc", values_to = "response",
-                 names_prefix = "c_elegans_mean_response")
+                 names_prefix = "C.elegans.mean.response")
 ```
 
 
-We could also select the columns to pivot by what they start with:  
+Or, if we wanted to keep that prefix but in a separate column, we can separate the column as we pivot it. This gets tricky because when we read in the data, spaces were turned into periods. There are two periods in a row though, so we can separate on that.  
+
+Periods (and some other symbols, like parentheses and square brackets) have special meaning in R, so to tell it to use the periods to separate columns, we have to put two backslashes in front of each period. This is beyond the scope of this workshop so just trust me here. And someday when you run into some issue like this, look up *"regular expressions"*.  
 
 ```{r}
 tox_cleaned %>% 
-    pivot_longer(cols = starts_with("c_elegans_mean_response"), names_to = "conc", values_to = "response")
-```
-
-
-And we can separate the column as we pivot it:  
-
-```{r}
-tox_cleaned %>% 
-    pivot_longer(cols = starts_with("c_elegans_mean_response"), 
-                 names_to = c("org_genus", "org_species", "type", "var", "conc1", "conc2", "units"),
-                 names_sep = "_",
-                 values_to = "response")
-```
-
-
-
-
-```{r}
-tox_long <- tox_cleaned2 %>% 
-    pivot_longer(cols = starts_with("C.elegans.mean.response"),
-                 names_to = c("prefix","conc","units"),
+    pivot_longer(cols = starts_with("C.elegans.mean.response"), 
+                 names_to = c("org", "conc"),
                  names_sep = "\\.\\.",
                  values_to = "response") %>% 
-    mutate(conc = as.numeric(conc))
+    mutate(conc = str_remove(conc, "\\.uM"))
+```
 
 
-ggplot(tox_long) +
-    geom_point(aes(x = conc, y = response, color = Name), size = 3)
 
-p <- ggplot(tox_long) +
-    geom_point(aes(x = conc, y = response, color = Name), size = 3)
+We also want to get rid of the ".uM" at the end of the `conc` column, so I'm using `stringr::str_remove()`. This is another "beyond the scope; just trust me" - but it's useful to see what happens. The cheet sheat for the `stringr` package is helpful in situations like this. ("Regular expressions" are a thing here too.)
+
+```{r}
+tox_cleaned %>% 
+    pivot_longer(cols = starts_with("C.elegans.mean.response"), 
+                 names_to = c("org", "conc"),
+                 names_sep = "\\.\\.",
+                 values_to = "response") %>% 
+    mutate(conc = str_remove(conc, "\\.uM"))
+```
+
+
+If you noticed above, `conc` was still a character after we pivoted. We want to make some graphs, so we need it to be a number. What's different about the code chunk below that made this happen?  
+
+```{r}
+tox_long <- tox_cleaned %>% 
+    pivot_longer(cols = starts_with("C.elegans.mean.response"), 
+                 names_to = c("org", "conc"),
+                 names_sep = "\\.\\.",
+                 values_to = "response") %>% 
+    mutate(conc = str_remove(conc, "\\.uM"),
+           conc = as.numeric(conc))
+```
+
+
+
+
+```{r}
+
+ggplot(tox_long, aes(x = conc, y = response, color = Name)) +
+    geom_point(size = 3)
+
+p <- ggplot(tox_long, aes(x = conc, y = response, color = Name)) +
+    geom_point(size = 3)
 
 p +
     facet_wrap(~Name)
@@ -296,25 +327,21 @@ p +
     scale_x_log10()
 
 
-p +
+# add better axis labels and a title; add a theme; remove the legend because
+# the names are at the top of the facets:
+q <- p +
     facet_wrap(~Name) +
     scale_x_log10() +
     theme_bw() +
     labs(title = "Toxicity curves for C. elegans",
-         x = "log of concentration (uM)",
-         y = "response",
-         color = "Chemical name")
-
-
-# or remove the legend:
-p +
-    facet_wrap(~Name) +
-    scale_x_log10() +
-    theme_bw() +
-    labs(title = "Toxicity curves for C. elegans",
-         x = "log of concentration (uM)",
+         x = "concentration (uM)",
          y = "response") +
     theme(legend.position = "none")
+q
+
+q + geom_line()
+
+q + geom_smooth()
 ```
 
 
