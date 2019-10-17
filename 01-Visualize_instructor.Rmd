@@ -27,8 +27,8 @@ What relationship do you expect to see between temperature (temp) and dissolved 
 Run the code on the slide to make a graph. Pay strict attention to spelling, capitalization, and parentheses!
 
 ```{r}
-ggplot(data = wq) +
-  geom_point(mapping = aes(x = temp, y = do_mgl))
+
+
 ```
 
 ## Your Turn 2
@@ -37,7 +37,8 @@ Add `color`, `size`, `alpha`, and `shape` aesthetics to your graph. Experiment.
 
 ```{r}
 ggplot(data = wq) + 
-  geom_point(mapping = aes(x = temp, y = do_mgl, color = 'blue'), size = 3)
+  geom_point(mapping = aes(x = temp, y = do_mgl))
+
 ```
 
 ## Your Turn 3
@@ -80,6 +81,15 @@ Save the last plot and then locate it in the files pane.
 
 ```{r}
 
+```
+
+## MAKE IT
+
+Using the plot below, customize the themes and colors to make it the ugliest thing you can. Hint: you may want to plot it first before you begin.
+
+``` {r ugly}
+ggplot(data = wq, aes(x = month, y = do_mgl)) +
+  geom_point(size = 3) 
 ```
 
 ***
