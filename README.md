@@ -4,7 +4,7 @@ This is the repo for Kim and Shannon's materials for the R workshop *The Next St
 
 Sunday, November 3, 2019
 8:00am - 4:00pm
-**Room 201B** of the Mobile Convention Center
+**Room 201 B** of the Mobile Convention Center
 
 ## About this Workshop:  
 
