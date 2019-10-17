@@ -206,17 +206,31 @@ wq_trimmed %>%
 
 The two major functions in `tidyr` are `pivot_longer()` to make your data frame tall and narrow, and `pivot_wider()` to make it shorter and wider. If you've ever heard of/used `gather()` and `spread()`, these are newer, better versions. `gather()` and `spread()` won't go away, but they are *deprecated* - no longer under active development. It is best to start using the new `pivot` functions moving forward. If you *haven't* heard of these functions, you are about to learn a very useful topic.     
 
-Very often, wide data is the most readable for people. Here is an example:  
+Very often, wide data is the most readable for people. Let's look at an example.    
 
-# INSERT EXAMPLE OF WIDE DATA  
 
-Good example! C_elegans_tox.csv - a portion of a spreadsheet from Boyd et al., 2015
-# look up this citation and link to download data  
-in which they compiled toxicity effects of various chemicals on the worm *C. elegans*.  
+## Background on this dataset  
 
-Let's first take a look at the file. I have already done a bit of cleanup (not too much) and greatly reduced the number of rows - this file originally had 960 rows! I've only kept the first 20. It's not hard to see why it was stored in this wide format. But for certain purposes, it needs to be rearranged into a longer format, and that can be done with just a few lines of code. (It really blows people's minds when you tell them you can "easily" rearrange so much data.)  
+CITATION:
+Boyd WA, Smith MV, Co CA, Pirone JR, Rice JR, Shockley KR, Freedman JH. 2016. Developmental effects of the ToxCast Phase I and II chemicals in Caenorhabditis elegans and corresponding responses in zebrafish, rats, and rabbits. Environ Health Perspect 124:586-593; http://dx.doi.org/10.1289/ehp.1409645.  
 
-# The original data can be downloaded here:  
+
+CONCLUSIONS:
+Here, we present an assay that quantitatively and reliably describes the effects of chemical toxicants on C. elegans growth and development. We found significant overlap in the activity of chemicals in the ToxCast libraries between C. elegans and zebrafish developmental screens. Incorporating C. elegans toxicological assays as part of a battery of in vitro and in vivo assays provides additional information for the development of models to predict a chemical's potential toxicity to humans.
+
+
+The paper can be found here: https://ehp.niehs.nih.gov/doi/10.1289/ehp.1409645  
+
+And the original spreadsheet can be downloaded from the supplemental materials, here:  https://ehp.niehs.nih.gov/doi/suppl/10.1289/ehp.1409645
+
+It is "ehp.1409645.s002.xlsx" in the zip download.  
+
+
+## Check out the data  
+
+
+Let's first take a look at the file. I have already done some cleanup and greatly reduced the number of rows - this file originally had 960 rows! I've only kept the first 20. It's not hard to see why it was stored in this wide format. But for certain purposes, it needs to be rearranged into a longer format, and that can be done with just a few lines of code. (It really blows people's minds when you tell them you can "easily" rearrange so much data.)  
+
 
 ```{r}
 tox <- read.csv(here::here("data", "C_elegans_tox.csv"), stringsAsFactors = FALSE) 
