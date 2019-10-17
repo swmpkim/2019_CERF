@@ -214,7 +214,7 @@ Good example! C_elegans_tox.csv - a portion of a spreadsheet from Boyd et al., 2
 # look up this citation and link to download data  
 in which they compiled toxicity effects of various chemicals on the worm *C. elegans*.  
 
-Let's first take a look at the file. I have already done a bit of cleanup (not too much) and greatly reduced the number of rows - this file originally had 960 rows! I've only kept the first 30. It's not hard to see why it was stored in this wide format. But for certain purposes, it needs to be rearranged into a longer format, and that can be done with just a few lines of code. (It really blows people's minds when you tell them you can "easily" rearrange so much data.)  
+Let's first take a look at the file. I have already done a bit of cleanup (not too much) and greatly reduced the number of rows - this file originally had 960 rows! I've only kept the first 20. It's not hard to see why it was stored in this wide format. But for certain purposes, it needs to be rearranged into a longer format, and that can be done with just a few lines of code. (It really blows people's minds when you tell them you can "easily" rearrange so much data.)  
 
 # The original data can be downloaded here:  
 
@@ -245,7 +245,7 @@ tox_cleaned %>%
     View()
 ```
 
-Think about how we just changed the data frame. This is the key of the `pivot` functions: moving between the shape we started with and the shape we just made. All the other stuff is just details of how to make it all prettier - but when you understand the long/wide shapes, you're most of the way to doing what you need.  
+Think about how we just changed the data frame. This is the key of the `pivot` functions: moving between the shape we started with and the shape we just made. All the other stuff is just details - when you understand the long/wide shapes, you're most of the way to doing what you need.  
 
 
 ### extra options  
@@ -255,7 +255,9 @@ We could also select the columns to pivot by what they start with (or end with, 
 
 ```{r}
 tox_cleaned %>% 
-    pivot_longer(cols = starts_with("C.elegans.mean.response"), names_to = "conc", values_to = "response")
+    pivot_longer(cols = starts_with("C.elegans.mean.response"), 
+                 names_to = "conc", 
+                 values_to = "response")
 ```
 
 
@@ -264,12 +266,16 @@ We can get rid of common prefixes by using `names_prefix`:
 
 ```{r}
 tox_cleaned %>% 
-    pivot_longer(cols = 4:10, names_to = "conc", values_to = "response",
+    pivot_longer(cols = 4:10, 
+                 names_to = "conc", 
+                 values_to = "response",
                  names_prefix = "C.elegans.mean.response")
 ```
 
 
-Or, if we wanted to keep that prefix but in a separate column, we can separate the column as we pivot it. This gets tricky because when we read in the data, spaces were turned into periods. There are two periods in a row though, so we can separate on that.  
+Or, if we wanted to keep that prefix but in a separate column, we can separate the column as we pivot it. 
+
+In this example, it's a little tricky because when we read in the data, spaces were turned into periods. There are two periods separating "C.elegans.mean.response" from the concentraion, however, so we can separate using two periods.  
 
 Periods (and some other symbols, like parentheses and square brackets) have special meaning in R, so to tell it to use the periods to separate columns, we have to put two backslashes in front of each period. This is beyond the scope of this workshop so just trust me here. And someday when you run into some issue like this, look up *"regular expressions"*.  
 
@@ -340,195 +346,42 @@ q <- p +
 q
 
 q + geom_line()
-
-q + geom_smooth()
 ```
 
 
-
-
-### end  
-
+You can get more complicated too, by using `pivot_longer_spec()` if you want to keep multiple columns after pivoting (for example, if you had columns for standard deviation in the response in addition to mean response, and wanted to collapse it into `mean_response` and `sd_response` columns for each concentration). Check out `vignette("pivot")` for more details.
 
 
 
-From Chapter 9 of *The Statistical Sleuth*, 2nd edition, by Ramsey and Schafer. Original data from Huey et al., "Rapid Evolution of a Geographic Cline in Size in an Introduced Fly", *Science* 287 (2000): 308-309.  
+## `pivot_wider()`  
 
-These are mean and standard errors of log-transformed wing length in invasive flies. The data has been aggregated and summarized for presentation; we are looking at grouped values.    
+
+The opposite of `pivot_longer()` is `pivot_wider()`. Sometimes you have one observation split over multiple rows, like in a dataset we'll see shortly, and you want to make certain variables be their own columns. To learn how it works, we'll first widen the *C. elegans* dataset back out, and then work on a slightly more complicated dataset.  
 
 ```{r}
-flies_wide <- read.csv(here::here("data", "flies.csv"), stringsAsFactors = FALSE)
-glimpse(flies_wide)
-```
-
-We will simplify this a bit to make it easier to learn pivoting.
-
-```{r}
-flies <- flies_wide %>% 
-    select(Continent, 
-           Latitude,
-           Female = Female.mean,     # renaming as I select
-           Male = Male.mean)
-glimpse(flies)
-```
-
-In this data set, wing lengths were measured in both female and male flies. Sex is actually a variable, and we can work with the data a little more easily if we make it a column. So we will `pivot_longer()`.  
-
-```{r}
-flies_long <- pivot_longer(flies, cols = c(Female, Male), names_to = "sex", values_to = "wing_length")
-glimpse(flies_long)
-```
-
-This format makes it easier to plot in different ways, or calculate different types of averages. Let's start with some plots.  
-
-
-```{r}
-ggplot(flies_long) +
-    geom_point(aes(y = Latitude, x = wing_length), 
-               size = 3)
-```
-
-Hmmm, looks like we have two different size classes. Could that be related to sex? Let's color by sex (remember, because this is showing something in the data, it goes inside `aes()`):    
-
-```{r}
-ggplot(flies_long) +
-    geom_point(aes(y = Latitude, x = wing_length, col = sex), 
-               size = 3)
-```
-
-We may also be curious about whether continent plays a role, and we can represent that by shape.  
-
-```{r}
-ggplot(flies_long) +
-    geom_point(aes(y = Latitude, x = wing_length, col = sex, shape = Continent), 
-               size = 3)
-```
-
-Alternately, we could use shape for sex and color for continent.  
-
-When it comes to grouping and summarizing data, tidy data is also easier to use. We will continue to work with the simplified data for a moment. 
-
-Let's say we want to find the average wing length by sex, by continent. That's doable with appropriate subsetting in the original data frame, but it's even easier here:  
-
-```{r}
-flies_long %>% 
-    group_by(Continent, sex) %>% 
-    summarize(mean = mean(wing_length, na.rm = TRUE))
-```
-
-
-And if we simply want the mean by continent, disregarding sex (which may not be the best thing to do, but bear with me), that's exactly as easy:  
-
-```{r}
-flies_long %>% 
-    group_by(Continent) %>% 
-    summarize(mean = mean(wing_length, na.rm = TRUE))
-```
-
-
-#### not really a challenge  
-
-How would you find those averages from the original `flies` data frame?  
-
-```{r}
-# it's easy to generate an overall average by sex, but grouping by continent 
-# in the original context is tougher
-```
-
-You can get more complicated too, by using `pivot_longer_spec()` if you want to keep, e.g., all of the standard error and ratio columns too. Check out `vignette("pivot")` for more details.
-
-
-The opposite of `pivot_longer()` is `pivot_wider()`. Sometimes you have one observation split over multiple rows, like in a dataset we'll see shortly, and you want to make certain variables be their own columns. To learn how it works, we'll first widen the fly dataset back out, and then work on a slightly more complicated dataset.  
-
-```{r}
-flies_wide2 <- flies_long %>% 
-    pivot_wider(names_from = sex, values_from = wing_length)
-View(flies_wide2)
-```
-
-
-Now let's look at a dataset that has some more going on.  
-
-```{r}
-gtmnut <- read.csv(here::here("data", "GTM_2019nutrients.csv"), stringsAsFactors = FALSE)
-View(gtmnut)
-```
-
-This is how Shannon gets her nutrient measurements back from her lab. There is metadata on every row, with every nutrient. This can be very useful! But it can also make it hard to work with the data. So what we'll do is select only the columns we need: station, sample date, nutrient component, and value. Then we'll pivot it out so that each nutrient value is in its own column.  
-
-```{r}
-# also do some renaming along the way
-gtmnut_trimmed <- gtmnut %>% 
-    select(station = StationCode,
-           datetime = DateSampled,
-           nutrient = ComponentLong,
-           value = Result)
-View(gtmnut_trimmed)
-```
-
-Each sample spans many rows! We'll spread that out so each sample only takes up one row.  
-
-```{r}
-gtmnut_wide <- gtmnut_trimmed %>% 
-    pivot_wider(names_from = nutrient,
-                values_from = value)
-View(gtmnut_wide)
-```
-
-
-As you can see, we now have a LOT of columns, and there are special characters in their names. We'll start by cleaning up the names (remember this `janitor::clean_names()` function?), and then select only a few primary nutrients to work with.  
-
-```{r}
-gtmnut_wide <- janitor::clean_names(gtmnut_wide)
-View(gtmnut_wide)
-
-gtmnut_wide_trimmed <- gtmnut_wide %>% 
-    select(station, datetime, 
-           po4 = o_phosphate_p, 
-           nox = no2no3_n, 
-           fecal_coliform = fecal_coliforms_membrane_filter,
-           tss,
-           nh4 = ammonia_n,
-           total_p,
-           chla = chlorophyll_a_corrected)
-View(gtmnut_wide_trimmed)
-```
-
-
-
-#### end  
-
-But to work well with R (and many other languages and analytical software), it is actually better for data to be in a "long" format:  
-
-# INSERT EXAMPLE OF LONG DATA  
-
-SHANNON'S nutrient data that they get back from the lab! Sometimes your data is *too* long, and every observation is split over multiple rows for various reasons. To work with it, we want to give each nutrient its own column (and do something else with all the associated metadata like MDL etc., but that's beyond the scope).    
-
-## long-to-wide  
-
-The data sets we've been using are in a long format. Can you picture a more readable way to present some of this ebird data? Maybe a column for each state, a row for each species/year combination, and presence in the main cells of the table? We can do that, fairly easily.  
-
-```{r}
-ebird_wide2 <- ebird %>% 
-    select(-samplesize) %>% 
-    pivot_wider(names_from = state,
-                values_from = presence)
-
-ebird_wide2 %>% 
-    arrange(species, year) %>% 
+tox_long %>% 
+    pivot_wider(names_from = conc, values_from = response) %>% 
     View()
 ```
 
+Remember that we'd turned that concentration column into a numeric format, and now numbers are the column names, which R doesn't particularly like. So we might want to combine the organism column with the concentration column, and we can do that by concatinating them in the `names_from` argument:  
 
-### mini-challenge 6  
+```{r}
+tox_long %>% 
+    pivot_wider(names_from = c(org, conc), values_from = response) %>% 
+    View()
+```
 
-You can make a more bite-sized table by filtering to a single species, state, or year of interest. Try making a table of American Coot presence in AL, FL, and MS. Give each state its own column, and each year its own row. (There is more than one way to do this, so compare your answer to your neighbors! Hint: you can use `select()` and/or `filter()` at the beginning of a pipe, and pivot_wider at the end.)    
+So with this dataset, we've gone from wide to long, and back again. 
+
+
+## mini-challenge: reshaping final exam from the slideshow  
 
 ```{r}
 
 ```
 
 
-## wide-to-long  
-
-What you'll encounter more often is getting data in a wide format, and needing to narrow it. The function for this is `pivot_longer()`. It's similar to `pivot_wider()`.   
+***  
+***  
+ 
