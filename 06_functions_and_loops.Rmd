@@ -470,6 +470,65 @@ my_plot(wq_trimmed, sal, do_pct, month)
 
 
 
+
+# For Loops  
+
+Sometimes you want to run a function on several different data frames. There are, as tends to be the case wtih R, many ways to do this. The one we will discuss today is the "for loop":  **For** `each thing` **in** `some set of things`, **do** `something`.  
+
+If you already hate or soon grow to hate for loops, check out the `purrr` package (this is a tidyverse solution; there are several good tutorials online) and/or the `apply` family of functions (this is base R).  
+
+
+Some things about for loops in R:  
+
++  the index starts at 1  (in other languages indexing starts at 0)  
++  if you want to save the results, you have to pre-allocate the output  
+
+Let's make a vector of fruit types, and use a loop to print each fruit.  
+
+```{r}
+fruits <- c("apple", "banana", "cranberry")
+
+for(i in seq_along(fruits)){
+  print(paste0("I like ", fruits[i], "s"))
+}
+```
+
+
+We can use "if" statements inside a loop to change the output:  
+
+```{r}
+for(i in seq_along(fruits)){
+  if(fruits[i] == "apple"){
+    print(paste0("I like ", fruits[i], "s"))
+  } else {print(paste0(fruits[i], "s are gross"))}
+}
+```
+
+
+Before you get too far, it's a good idea to manually set "i", run just the code inside the curly braces, and make sure you get the output you expect:  
+
+```{r}
+i <- 1
+
+if(fruits[i] == "apple"){
+    print(paste0("I like ", fruits[i], "s"))
+  } else {print(paste0(fruits[i], "s are gross"))}
+```
+
+
+Check it with another one too, because sometimes you realize you forgot to change something important:  
+
+```{r}
+i <- 2
+
+if(fruits[i] == "apple"){
+    print(paste0("I like ", fruits[i], "s"))
+  } else {print(paste0(fruits[i], "s are gross"))}
+```
+
+
+
+
 ```{r, eval = FALSE}
 # here's my entire functions and loops script from TTW 2019
 
