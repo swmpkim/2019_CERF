@@ -289,20 +289,6 @@ dim(wq_trimmed)
 dim(wq) - dim(wq_trimmed)
 
 # why did all those rows go away?
-# note: wrapping an entire piece of code in parentheses both
-# saves the object AND prints it to screen
-(stns_all <- unique(wq$station_code))
-(stns_trimmed <- unique(wq_trimmed$station_code))
-
-# here's how to find the station code that's in one and not the other
-# start by asking, for each value in stns_all, "is this in stns_trimmed?":
-stns_all %in% stns_trimmed
-
-# note that returned logical values
-# we want to know which station returned FALSE
-# so we select - which is actually easier to do in base R than tidyverse
-# but the syntax can be tough to wrap your head around
-stns_all[!(stns_all %in% stns_trimmed)]
 ```
 
 
