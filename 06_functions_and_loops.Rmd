@@ -397,8 +397,7 @@ First we'll make a simple plot. I'm not claiming that this is pretty.
 
 ```{r}
 ggplot(wq_trimmed) +
-  geom_point(aes(x = sal, y = do_pct)) +
-  facet_wrap(~station_code)
+  geom_point(aes(x = sal, y = do_pct, col = station_code))
 ```
 
 
@@ -407,8 +406,7 @@ Say we want to make this plot for a variety of pairs of parameters, and our data
 ```{r}
 my_plot <- function(wq_trimmed, sal, do_pct, station_code) {
   ggplot(wq_trimmed) +
-    geom_point(aes(x = sal, y = do_pct)) +
-    facet_wrap(~station_code)
+    geom_point(aes(x = sal, y = do_pct, col = station_code))
 }
 ```
 
@@ -416,10 +414,9 @@ my_plot <- function(wq_trimmed, sal, do_pct, station_code) {
 So let's change some names and see what happens.  
 
 ```{r}
-my_plot <- function(data, param1, param2, param_facet) {
+my_plot <- function(data, param1, param2, param3) {
   ggplot(data) +
-    geom_point(aes(x = param1, y = param2)) +
-    facet_wrap(~param_facet)
+    geom_point(aes(x = param1, y = param2, col = param3))
 }
 ```
 
@@ -430,15 +427,7 @@ my_plot(wq_trimmed, sal, do_pct, station_code)
 ```
 
 
-```{r}
-my_plot <- function(data, param1, param2, param_facet) {
-  ggplot({{data}}) +
-    geom_point(aes(x = {{param1}}, y = {{param2}})) 
-}
-
-my_plot(wq_trimmed, sal, do_pct)
-```
-
+Working interactively in the tidyverse is easy because it bypasses some of the rules that R uses to associate function arguments with names in the data. This makes it a bit trickier to use some of our favorite tidyverse functions inside functions that we write. Recently, however, they made it easier to deal with this problem; and now we need to simply wrap the arguments that will change inside two curly braces `{{ }}`.
 ```{r}
 my_plot <- function(data, param1, param2, param3) {
   ggplot(data) +
@@ -458,7 +447,7 @@ If in doubt, wrap it in "curly curly" `{{ }}`.
 
 #### Aside  
 
-Note that to facet, it's not quite as simple, and you have to use `var( {{ }} )` without the `~` inside your function. I don't know why, but this answer in the [RStudio Community forum](https://community.rstudio.com/t/problem-with-facet-wrap-and-curly-curly/36975) helped me figure it out.  
+Note that to facet, it's not quite as simple, and you have to use `var( {{ }} )`, without the `~`, inside your function. I don't know why, but this answer in the [RStudio Community forum](https://community.rstudio.com/t/problem-with-facet-wrap-and-curly-curly/36975) helped me figure it out.  
 
 ```{r}
 my_plot <- function(data, param1, param2, param3) {
