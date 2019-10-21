@@ -16,8 +16,270 @@ for loops:  http://swcarpentry.github.io/r-novice-inflammation/03-loops-R/index.
 
 whole lesson: http://swcarpentry.github.io/r-novice-inflammation/
 
+Setup:
+
+```{r, message = FALSE, warning = FALSE}
+library(dplyr)
+library(tidyr)
+library(here)
+library(stringr)
+library(ggplot2)
+```
 
 ```{r}
+ebird <- read.csv(here::here("data", "eBird_workshop.csv"), stringsAsFactors = FALSE)
+ebird <- dplyr::distinct(ebird)
+
+wq <- read.csv(here::here("data", "daily_wq.csv"), stringsAsFactors = FALSE)
+wq_trimmed <- wq %>%
+    select(station_code, month, day, temp, sal, do_pct, depth) %>%
+    filter(!is.na(depth)) %>%
+    mutate(depth_ft = depth * 3.28,
+           temp_f = (9/5) * temp + 32)
+```
+
+
+# Functions  
+
+Starting with this because most of the time, a function will solve your problems.  
+
+There is a principle in programming known as **DRY** - **D**on't **R**epeat **Y**ourself.  
+
+I'm not here to shame you for copying-and-pasting, then making a little change to, code that works. We all do that.  
+
+However. If you've used the same chunk of code more than 3 times, you may want to consider writing a *function*. This can reduce errors due to typos (or just forgetting to change something in some spot), and also makes it easier to re-run a whole pile of code when you realize something needed to change - you only have to change it in one place!    
+
+## Outline of a function  
+
+You've got some **working code** that gives you an **output** you want. And you identify the **pieces that you want to change**. These bold parts are the three parts of a function:  
+
+1.  your working code is the **body**.  
+2.  the output is known as the **return value**. It can be a single value, or a data frame, or a list.... whatever you want it to be.  
+3.  the part(s) that you change are the **arguments** (also known as "formals").  
+    +  some advice from Hadley Wickham and Garrett Grolemund, in ["R for Data Science"](https://r4ds.had.co.nz/) (aka *R4DS*):  
+    +  put *data* arguments first  
+    +  *detail* arguments should go at the end, and should usually have default values
+
+You also need to be aware of the **environment** in which you call the function. Again from R4DS: "The environment of a function controls how R finds the value asociated with a name." We will come back to this a little later when you've seen the structure of a function - but essentially what it means is, if you use some variable in your function but don't make it an argument, R is going to look "upstream" from your function and try to find something with that name.  
+
+
+## Function Example  
+
+R has functions to calculate mean and standard deviation of a dataset, but there isn't one for standard error. Remember, `standard error = sd / sqrt(n)`. 
+
+Let's get this working on a small chunk of data. I like to pull out a little bit and call it "test".   
+
+```{r}
+test <- wq_trimmed %>% 
+  filter(station_code == "gndblwq   ",
+         month == 1)  # there are some trailing white spaces in the station codes  
+
+glimpse(test)
+
+
+# let's build up to it:  
+
+# stdev:
+sd(test$temp_f, na.rm = TRUE)
+
+# sample size:  
+length(test$temp_f)
+
+# what if there were NAs though? remove them:
+# have to use "sum" because we're switching to a logical
+sum(!is.na(test$temp_f))
+```
+
+
+#### Aside that we won't go through in the workshop  
+
+I figured out the `sum(!is.na(etc))` part the hard way, btw - that's often the toughest part of a function - getting the code to do what you want it to. For reference, here are my steps (the code here won't be evaluated when this document is knitted). Some of these worked, and some of them didn't.    
+
+```{r, eval = FALSE}
+length(test$temp_f, na.rm = TRUE) 
+# R doesn't like that argument at all
+
+# does this work?
+length(!is.na(test$temp_f))
+# well.... maybe. it does return a number.
+
+
+# let's create a smaller dataset and introduce some NAs to make sure
+test2 <- test$temp_f
+test2[2:3] <- NA  
+
+
+length(!is.na(test2))  
+# 31 isn't the answer I want to see, so something is wrong
+# length is simply returning how long the vector is, inclusive of NAs
+
+# !is.na returns a "true" or "false".
+# "true"/"false" are also seen as "1"/"0", and we can add:
+sum(!is.na(test2))  
+# and that gave me what I wanted to see
+```
+
+
+#### end of aside  
+
+
+
+```{r}
+# so combine those for standard error, and don't forget the `sqrt`:
+sd(test$temp_f, na.rm = TRUE) / sqrt( sum(!is.na(test$temp_f)) )
+```
+
+
+See why that might be annoying to type over and over again? And how it could be prone to error?  
+
+
+Okay, so what can we generalize here? What are we repeating?  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+`test$temp_f`, right?  
+
+
+So let's assign that to something, and replace the specific value in our code with the variable `x`:  
+
+```{r}
+x <- test$temp_f
+sd(x, na.rm = TRUE) / sqrt( sum(!is.na(x)) )
+```
+
+
+Now we could make another variable our `x` and find its standard error.  
+
+```{r}
+x <- test$sal
+sd(x, na.rm = TRUE) / sqrt( sum(!is.na(x)) )
+```
+
+
+
+We're still copying and pasting, but it's general. So we're most of the way to the function. We need to wrap it up like this, in `()` and `{}`, and come up with a name:  
+
+```{r}
+sterr <- function(x){
+  sd(x, na.rm = TRUE) / sqrt( sum(!is.na(x)) )
+}
+```
+
+Run the above chunk of code. Now you can see `sterr` in your Environment pane as a function!  And you use it like any other function:  
+
+```{r}
+sterr(test$temp_f)
+sterr(test$do_pct)
+```
+
+
+Let's check it on our bigger data frame!  
+
+```{r}
+sterr(wq_trimmed$temp_f)
+```
+
+### mini-challenge  
+
+Use `group_by`, `summarize`, and our new `sterr` function to generate a table of standard error by month, by station, for `temp_f`. Does the standard error at `gndblwq` for January (month 1) match our output from above?    
+
+```{r}
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```{r}
+wq_trimmed %>% 
+  group_by(station_code, month) %>% 
+  summarize(temp_f_sterr = sterr(temp_f))
+```
+
+
+
+### (not-so-) mini-challenge  
+
+Now **you** write a function! Name it `subtract_mean`. The input should be a vector (like we did with `sterr`), and the output should be each value of that vector minus the `mean` of that vector.  
+
+Remember to get it working *before* you wrap it up into a function.  
+
+```{r}
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```{r}
+test$sal - mean(test$sal)
+
+subtract_mean <- function(x){
+  x - mean(x, na.rm = TRUE)
+}
+
+subtract_mean(test$sal)
+```
+
+
+
+## testing the function  
+
+## defining defaults  
+
+
+```{r, eval = FALSE}
 # here's my entire functions and loops script from TTW 2019
 
   
