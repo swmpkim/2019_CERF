@@ -229,7 +229,7 @@ wq_trimmed %>%
 
 ### (not-so-) mini-challenge  
 
-Now **you** write a function! Name it `subtract_mean`. The input should be a vector (like we did with `sterr`), and the output should be each value of that vector minus the `mean` of that vector.  
+Now **you** write a function! Name it `divide_by_10`. The input should be a vector (like we did with `sterr`), and the output should be each value of that vector divided by 10.  
 
 Remember to get it working *before* you wrap it up into a function.  
 
@@ -263,20 +263,193 @@ Remember to get it working *before* you wrap it up into a function.
 
 
 ```{r}
-test$sal - mean(test$sal)
+test$sal / 10
 
-subtract_mean <- function(x){
-  x - mean(x, na.rm = TRUE)
+divide_by_10 <- function(x){
+  x/10
 }
 
-subtract_mean(test$sal)
+divide_by_10(test$sal)
+```
+
+
+### mini-challenge 3?   
+
+
+Now. What if we want to divide by something other than 10? Generalize the function to take two arguments as input. The second input (call it `y`) should be the denominator in your `divide_by` function.  
+
+```{r}
+
 ```
 
 
 
-## testing the function  
 
-## defining defaults  
+
+
+
+
+
+
+
+
+
+
+
+
+
+Did you get this?  
+
+```{r}
+test$sal / 10
+
+divide_by <- function(x, y){
+  x / y
+}
+
+divide_by(test$sal, 10)
+divide_by(test$sal, 100)
+```
+
+It's always a good idea to make sure you get output you expect!  
+
+
+## Setting default values for arguments  
+
+So, once you have a working function, you can continue to build on it and make it more flexible. 
+
+The next thing we'll do is set a default argument for `y` - if nothing else is specified, our function will divide the input vector by 10. This is done in the argument definition:  
+
+```{r}
+divide_by <- function(x, y = 10){
+  x / y
+}
+
+divide_by(test$sal, 10)
+divide_by(test$sal, 100)
+divide_by(test$sal)
+```
+
+
+Remember, it's a good idea to put the *data* argument first.
+
+
+
+
+
+### mini-challenge  
+
+Change the names of the arguments in this function from `x` and `y` to `num` (to represent numerator) and `denom` (for denominator). Make sure it still works.
+
+```{r}
+divide_by <- function(x, y = 10){
+  x / y
+}
+
+divide_by(test$sal, 10)
+divide_by(test$sal, 100)
+divide_by(test$sal)
+```
+
+
+
+## Other function testing  
+
+What do you think will happen if we run these lines of code?  
+
+```{r, eval = FALSE}
+
+divide_by(test$sal, "a")
+
+divide_by(test$sal, TRUE)
+
+divide_by(test$station_code, 10)
+```
+
+
+We've been checking all along to make sure we get output we expect in simple cases. It's also a good idea to see what will happen if you feed your function something you *shouldn't* and make sure it fails. Notice that it did *not* fail when we tried to divide by "TRUE" - that's because R sees TRUE as 1 and FALSE as 0. We might want it to fail in this case!
+
+```{r}
+divide_by <- function(num, denom = 10){
+  stopifnot(is.numeric(num), is.numeric(denom))
+  num / denom
+}
+
+# things that should work
+divide_by(test$sal, 10)
+divide_by(test$sal, 100)
+divide_by(test$sal, test$do_pct)
+divide_by(test$sal)
+divide_by(denom = 100, num = test$sal)
+
+# things that should fail
+divide_by(test$sal, "a")
+divide_by(test$sal, TRUE)
+divide_by(test$station_code, 10)
+```
+
+
+# Functions using graphs  
+
+What we've done so far today has been very tidyverse-heavy. The tidyverse reduces the cognitive burden when it comes to interactively exploring and analyzing data. However, it does make it a bit more difficult to program. We won't go into details today, but we will go over some "cheats" to make it easy to take a graph that you like and turn it into a function.  
+
+First we'll make a simple plot. I'm not claiming that this is pretty.  
+
+```{r}
+ggplot(wq_trimmed) +
+  geom_point(aes(x = sal, y = do_pct)) +
+  facet_wrap(~station_code)
+```
+
+
+Say we want to make this plot for a variety of pairs of parameters, and our data frame may not always be called `wq_trimmmed`. So these are three arguments that we want to be able to specify. When we use RStudio's menu to extract a function, it gives us four - it includes station_code, and looks like this:    
+
+```{r}
+my_plot <- function(wq_trimmed, sal, do_pct, station_code) {
+  ggplot(wq_trimmed) +
+    geom_point(aes(x = sal, y = do_pct)) +
+    facet_wrap(~station_code)
+}
+```
+
+
+So let's change some names and see what happens.  
+
+```{r}
+my_plot <- function(data, param1, param2, param_facet) {
+  ggplot(data) +
+    geom_point(aes(x = param1, y = param2)) +
+    facet_wrap(~param_facet)
+}
+```
+
+Let's see what happens when we try.....
+
+```{r, eval = FALSE}
+my_plot(wq_trimmed, sal, do_pct, station_code)
+```
+
+
+```{r}
+my_plot <- function(data, param1, param2, param_facet) {
+  ggplot({{data}}) +
+    geom_point(aes(x = {{param1}}, y = {{param2}})) 
+}
+
+my_plot(wq_trimmed, sal, do_pct)
+```
+
+```{r}
+my_plot <- function(data, param1, param2, param_facet) {
+  ggplot(data) +
+    geom_point(aes(x = {{param1}}, y = {{param2}})) +
+    facet_wrap(~{{param_facet}})
+}
+
+my_plot(wq_trimmed, sal, do_pct, station_code)
+my_plot(wq_trimmed, sal, do_pct, month)
+```
+
 
 
 ```{r, eval = FALSE}
