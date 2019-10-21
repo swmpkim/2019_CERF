@@ -369,7 +369,7 @@ divide_by(test$station_code, 10)
 
 We've been checking all along to make sure we get output we expect in simple cases. It's also a good idea to see what will happen if you feed your function something you *shouldn't* and make sure it fails. Notice that it did *not* fail when we tried to divide by "TRUE" - that's because R sees TRUE as 1 and FALSE as 0. We might want it to fail in this case!
 
-```{r}
+```{r, eval = FALSE}
 divide_by <- function(num, denom = 10){
   stopifnot(is.numeric(num), is.numeric(denom))
   num / denom
