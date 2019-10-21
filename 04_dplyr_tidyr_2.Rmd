@@ -164,7 +164,7 @@ ebird %>%
 
 ### mini-challenge 8  
 
-Use the `wq_trimmed` data frame. Calculate monthly average temp, sal, and do_pct (at least - more variables if you like) for each station. Make a scatterplot using any two of these variables. Use what you've learned about `ggplot2`'s options to adjust the look and feel of the graph. Is the relationship what you expected it to be? Does it vary by site?     
+Use the `wq_trimmed` data frame. Calculate monthly average temp, sal, and do_pct (at least - more variables if you like) *for each station*. Make a scatterplot using any two of these variables. Use what you've learned about `ggplot2`'s options to adjust the look and feel of the graph. Is the relationship what you expected it to be? Does it vary by site?     
 
 ```{r}
 

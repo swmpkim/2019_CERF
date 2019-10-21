@@ -368,7 +368,7 @@ View(wq_trimmed)
 
 # FEELS LIKE BREAK TIME  
 
-If making a graph relaxes you, make a scatterplot of `temp` by `temp_f` and reassure yourself that the points fall on a line. You may want to color and/or facet by `station_code`. Play with other options too, to make the graph as pretty (or as ugly) as you like! 
+If making a graph relaxes you, make a scatterplot of `temp` by `temp_f` and reassure yourself that the points fall on a line. You may want to color and/or facet by `station_code`. Play with other options too, to make the graph as pretty (or as ugly) as you like! When you're ready, take a break!  
 
 ```{r}
 
