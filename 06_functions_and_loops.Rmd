@@ -440,15 +440,44 @@ my_plot(wq_trimmed, sal, do_pct)
 ```
 
 ```{r}
-my_plot <- function(data, param1, param2, param_facet) {
+my_plot <- function(data, param1, param2, param3) {
   ggplot(data) +
-    geom_point(aes(x = {{param1}}, y = {{param2}})) +
-    facet_wrap(~{{param_facet}})
+    geom_point(aes(x = {{param1}}, y = {{param2}}, col = {{param3}})) 
+}
+
+my_plot(wq_trimmed, sal, do_pct, station_code)
+my_plot(wq_trimmed, sal, do_pct, month)  # we may want to go up into our function
+# and specify that we want to turn the "col" argument into a factor
+
+# try it yourself!  
+```
+
+If in doubt, wrap it in "curly curly" `{{ }}`.
+
+
+
+#### Aside  
+
+Note that to facet, it's not quite as simple, and you have to use `var( {{ }} )` without the `~` inside your function. I don't know why, but this answer in the [RStudio Community forum](https://community.rstudio.com/t/problem-with-facet-wrap-and-curly-curly/36975) helped me figure it out.  
+
+```{r}
+my_plot <- function(data, param1, param2, param3) {
+  ggplot(data) +
+    geom_point(aes(x = {{param1}}, y = {{param2}}, col = factor({{param3}}))) +
+    facet_wrap(vars( {{param3}} ))
 }
 
 my_plot(wq_trimmed, sal, do_pct, station_code)
 my_plot(wq_trimmed, sal, do_pct, month)
 ```
+
+
+#### end aside
+
+
+### mini-challenge  
+
+# ?????   
 
 
 
@@ -535,201 +564,5 @@ for(i in seq_along(names(bhwq_qaqc))){
 ## write a for loop to print "[fruit type] is [adjective]"
 
 
-
-
-
-
-
-
-### Writing a function ----
-
-
-## Example: there's a formula you use a lot
-## say, to calculate standard error
-## this is the formula, for salinity:
-sd(bhwq_qaqc$sal, na.rm = TRUE) / sqrt(length(bhwq_qaqc$sal))
-
-
-## and you don't want to type it every time you want to calculate it for something
-
-
-#### how do you generalize it? (if you're copying and pasting, what are you changing every time?)
-
-
-
-# bhwq_qaqc$sal
-
-# so we want to assign that to something and feed that into our formula:
-
-x <- bhwq_qaqc$sal
-sd(x, na.rm = TRUE) / sqrt(length(x))
-
-
-## and now, we can make it a function. RStudio helps with this:
-## higlight the formula
-
-## then, from the "Code" menu, select "Extract Function"
-## when it asks you for a function name, type "sterr"
-
-sd(x, na.rm = TRUE) / sqrt(length(x))
-
-## it will turn it into this:
-
-sterr <- function(x) {
-  sd(x, na.rm = TRUE) / sqrt(length(x))
-}
-
-
-# run that code to make the function available to you
-
-# and you can use it:
-sterr(bhwq_qaqc$sal)
-
-sterr(bhwq_qaqc$ph)
-
-
-
-#### your turn (pick a parameter):
-
-
-
-
-
-
-## You can also do write functions for graphs
-## it gets a little more complicated to generalize
-
-
-# say we put a lot of effort into this graph:
-ggplot(data = bhwq_qaqc, aes(x = datetimestamp, y = sal)) +
-        geom_line(aes(col = "15-min data")) +
-        geom_smooth(aes(col = "smoothed"), size = 2) +
-        labs(x = "Date",
-             y = "sal") +
-        scale_color_manual(values = c("gray60", "red3"),
-                           labels = c("15-min data", "monthly average")) +
-        theme_bw()
-
-
-# and now we want to make other graphs that look the same
-# we could copy and paste. what would we need to change in the code?
-
-
-
-
-
-
-
-
-
-# data frame
-# parameter
-
-
-
-
-
-# let's start with generalizing the parameter:
-
-# define our parameter
-param <- "sal"
-
-# make a subset of the data for graphing purposes
-# remember this square bracketing thing?
-
-graph_dat <- ------[ c("datetimestamp", param) ]   # fill in the dashes
-## where does the comma go?
-## (do we really need it?)
-
-
-
-# give the defined parameter column the name "param"
-names(graph_dat) <- c("datetimestamp", "param")
-
-
-
-# now make the plot, using "param" in place of "sal"
-# do you need quotation marks around it here?
-ggplot(data = graph_dat, aes(x = datetimestamp, y = -----)) +
-        geom_line(aes(col = "15-min data")) +
-        geom_smooth(aes(col = "smoothed"), size = 2) +
-        labs(x = "Date",
-             y = ------) +
-        scale_color_manual(values = c("gray60", "red3"),
-                           labels = c("15-min data", "monthly average")) +
-        theme_bw()
-
-
-
-
-## okay, now see if we can generalize the data frame
-
-# one easy way is to make a duplicate of our original data frame, and name it dat
-dat <- bhwq_qaqc
-
-# subset and rename
-graph_dat <- dat[c("datetimestamp", param)]
-names(graph_dat) <- c("datetimestamp", "param")
-
-
-## where do you change it below to make the graph?
-ggplot(data = -----, aes(x = datetimestamp, y = param)) +
-        geom_line(aes(col = "15-min data")) +
-        geom_smooth(aes(col = "smoothed"), size = 2) +
-        labs(x = "Date",
-             y = param) +
-        scale_color_manual(values = c("gray60", "red3"),
-                           labels = c("15-min data", "monthly average")) +
-        theme_bw()
-
-
-
-
-## so in a function, we need to be able to specify the data frame
-## and the parameter of interest
-## and it looks like this:
-
-plot_smoothed <- function(data, param){
-        dat <- data
-        graph_dat <- dat[ , c("datetimestamp", param)]
-        names(graph_dat) <- c("datetimestamp", "param")
-        ggplot(data = graph_dat, aes(x = datetimestamp, y = param)) +
-                geom_line(aes(col = "15-min data")) +
-                geom_smooth(aes(col = "smoothed"), size = 2) +
-                labs(x = "Date",
-                     y = param) +
-                scale_color_manual(values = c("gray60", "red3"),
-                                   labels = c("15-min data", "monthly average")) +
-                theme_bw()
-}
-
-plot_smoothed(bhwq_qaqc, "sal")
-plot_smoothed(bhwq_qaqc, "temp")
-plot_smoothed(met_qc, "atemp")
-
-
-
-
-#### Challenge
-
-## Change the function so that you can specify a title.
-## name the function argument "my_title"
-
-plot_smoothed <- function(data, param, -----){
-        dat <- data
-        graph_dat <- dat[ , c("datetimestamp", param)]
-        names(graph_dat) <- c("datetimestamp", "param")
-        ggplot(data = graph_dat, aes(x = datetimestamp, y = param)) +
-                geom_line(aes(col = "15-min data")) +
-                geom_smooth(aes(col = "smoothed"), size = 2) +
-                labs(title = ------,
-                     x = "Date",
-                     y = param) +
-                scale_color_manual(values = c("gray60", "red3"),
-                                   labels = c("15-min data", "monthly average")) +
-                theme_bw()
-}
-
-## run your new function on at least one WQ and one MET parameter
 ```
 
