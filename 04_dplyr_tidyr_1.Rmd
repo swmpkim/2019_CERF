@@ -247,7 +247,7 @@ Because this is so important, I will provide working code in a chunk below. But 
 
 We have read in the daily water quality data for a few stations. Create a new data frame called `wq_trimmed` where, from `wq`, you:    
 
-+  **Select** the following columns:  station_code, month, dat, temp, sal, do_pct, and depth.  
++  **Select** the following columns:  station_code, month, day, temp, sal, do_pct, and depth.  
 +  **Filter** for rows where `depth` is *not* missing. (Hint: `is.na` is the function that checks to see if a value *is* missing. How would you look for "not" `is.na`?   It's similar to "not equal to" from above.)
 
 ```{r}
