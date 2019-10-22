@@ -1,8 +1,12 @@
 ---
 title: "Functions and Loops"
 author: "Kim Cressman"
-date: "9/23/2019"
-output: html_document
+output: 
+    html_document:
+        toc: true
+        toc_depth: 3
+        toc_float:
+            collapsed: false
 ---
 
 ```{r setup, include=FALSE}
@@ -573,6 +577,7 @@ Notice a few things here:
 
 +  `wq_sub` and `i` both appear in the Global Environment.  
 +  the plotting function is wrapped in `print()` - you have to explicitly print ggplots from inside a for loop. (In general, if you don't see what you think you should see when you run the loop, try wrapping it in `print()`.)  
++  we printed the plot, but you could do other things like use `ggsave` to save it to a directory on your computer. You will have to figure out how to automatically generate unique names from within the loop! (it's a matter of pasting)
 
 
 
@@ -624,3 +629,4 @@ What have we done?
 +  used the `i` index value to specify *where* in that output vector we want the value from each iteration of the loop
 
 
+This concept can be extended to files in a folder on your computer: read in a file, make a bunch of graphs, and save them out as a pdf. Or read in all your daily files for the week, append them together, and save out a single weekly file.  

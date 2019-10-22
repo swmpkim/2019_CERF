@@ -1,0 +1,22 @@
+---
+title: "Final Challenge"
+author: "Kim Cressman"
+output: 
+    html_document:
+        toc: true
+        toc_depth: 3
+        toc_float:
+            collapsed: false
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Final challenge  
+
+For our final challenge, you are going to put together the things that you've learned throughout the day.  
+
+## Part 1  
+
+From the "final_challenge" folder, 
