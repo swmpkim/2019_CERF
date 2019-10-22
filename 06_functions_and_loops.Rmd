@@ -427,7 +427,8 @@ my_plot(wq_trimmed, sal, do_pct, station_code)
 ```
 
 
-Working interactively in the tidyverse is easy because it bypasses some of the rules that R uses to associate function arguments with names in the data. This makes it a bit trickier to use some of our favorite tidyverse functions inside functions that we write. Recently, however, they made it easier to deal with this problem; and now we need to simply wrap the arguments that will change inside two curly braces `{{ }}`.
+Working interactively in the tidyverse is easy because it bypasses some of the rules that R uses to associate function arguments with names in the data. This makes it a bit trickier to use some of our favorite tidyverse functions inside functions that we write. Recently, however, they made it easier to deal with this problem; and now we need to simply wrap the arguments that will change inside two curly braces `{{ }}`.  
+
 ```{r}
 my_plot <- function(data, param1, param2, param3) {
   ggplot(data) +
@@ -493,18 +494,27 @@ for(i in 1:10){
 ```
 
 
-Let's make a vector of fruit types, and use a loop to print each fruit.  
+Let's make a vector of fruit types, and use a loop to print each fruit. Notice that here, we don't want to print the value of `i` itself, but we want to print the `i`th member of something. So we use square brackets `[ ]` around `i`.    
 
 ```{r}
 fruits <- c("apple", "banana", "canteloupe")
 
+for(i in 1:length(fruits)){
+  print(fruits[i])
+}
+```
+
+
+Of course, we can do more than just print. We can dress it up!    
+
+```{r}
 for(i in 1:length(fruits)){
   print(paste0("I like ", fruits[i], "s"))
 }
 ```
 
 
-A "safer" way to describe the elements you're iterating over is the `seq_along` function. This way, if for some reason you have an empty vector, you won't confuse R.  
+A "safer" way to describe the elements you're iterating over is the `seq_along` function instead of `1:something`. This way, if for some reason you have an empty vector, you won't confuse R.  
 
 
 ```{r}
@@ -514,7 +524,7 @@ for(i in seq_along(fruits)){
 ```
 
 
-As with functions, it's a good idea to get some code working before you write it into a loop. And before you get too far, manually set "i", run only the code inside the curly braces, and make sure you get the output you expect:  
+As with functions, it's a good idea to get some code working before you write it into a loop. And before you get too far: manually set `i`, run only the code inside the curly braces, and make sure you get the output you expect:  
 
 ```{r}
 i <- 1
@@ -536,41 +546,81 @@ i <- 2
 
 
 
-For loops can be a good way to take a set of files in a folder, read each one into R and do some things to it, and export another file when you're done.  
+### mini-challenge no idea what number  
 
+Now, imagine you've never heard of `ggplot2`'s `facet` capabilities, and you want to make a separate "`my_plot`" for each station in the datset.    
 
+First, make a vector of unique `station_code`s in `wq_trimmed` (Hint: look up the function `unique`).
 
+```{r, eval = FALSE}
+my_stns <- 
+```
 
+Now, fill in the skeleton below of a loop to print out `my_plot` for each station.  
 
+```{r, eval = FALSE}
 
-We can use "if" statements inside a loop to change the output:  
-
-```{r}
-for(i in seq_along(fruits)){
-  if(fruits[i] == "apple"){
-    print(paste0("I like ", fruits[i], "s"))
-  } else {print(paste0(fruits[i], "s are gross"))}
+for(i in ----(my_stns)){
+  wq_sub <- wq_trimmed %>% 
+    ------(station_code == my_stns[i])
+  
+  print(my_plot(wq_sub, sal, do_pct, station_code))
 }
 ```
 
 
-Check again: 
+Notice a few things here:  
+
++  `wq_sub` and `i` both appear in the Global Environment.  
++  the plotting function is wrapped in `print()` - you have to explicitly print ggplots from inside a for loop. (In general, if you don't see what you think you should see when you run the loop, try wrapping it in `print()`.)  
+
+
+
+## pre-allocating memory for output  
+
+If you want to save the results of the output (as opposed to just printing them to your screen), you need to set up some way to store that output *before* the loop itself. As an example, let's say you didn't remember that `group_by()` and `summarize()` exist, and you want to write a loop where you calculate the mean salinity for each station.  
+
+Here's how you could print it out.  
 
 ```{r}
-i <- 1
+my_stns <- unique(wq_trimmed$station_code)
 
-if(fruits[i] == "apple"){
-    print(paste0("I like ", fruits[i], "s"))
-  } else {print(paste0(fruits[i], "s are gross"))}
+for(i in seq_along(my_stns)){
+  wq_sub <- wq_trimmed %>% 
+    filter(station_code == my_stns[i])
+  
+  print(my_stns[i])
+  print(mean(wq_sub$sal, na.rm = TRUE))
+}
+```
+
+But say we want to save those values for later. We can set up vectors for output. We want these to be the same length as the group over which we're iterating.    
+
+```{r}
+stns_out <- rep("dummy_value", length(my_stns))
+mean_sal_out <- rep(0, length(my_stns))
+
+stns_out; mean_sal_out
 ```
 
 
-```{r}
-i <- 2
+Now we use our for loop to write over each of those in turn.  
 
-if(fruits[i] == "apple"){
-    print(paste0("I like ", fruits[i], "s"))
-  } else {print(paste0(fruits[i], "s are gross"))}
+```{r}
+for(i in seq_along(my_stns)){
+  wq_sub <- wq_trimmed %>% 
+    filter(station_code == my_stns[i])
+  
+  stns_out[i] <- my_stns[i]
+  mean_sal_out[i] <- mean(wq_sub$sal, na.rm = TRUE)
+}
+
+stns_out; mean_sal_out
 ```
+
+What have we done?  
+
++  replaced `print` with an object to store the value in  
++  used the `i` index value to specify *where* in that output vector we want the value from each iteration of the loop
 
 
