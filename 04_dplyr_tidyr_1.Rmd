@@ -81,7 +81,7 @@ We can filter based on more than one criterion, e.g. if we want all birds from A
 ebird_AK_2008 <- ebird %>% 
         filter(state == "AK",
                year == 2008)
-glimpse(ebird_AK_2008)
+head(ebird_AK_2008)
 ```
 
 
@@ -92,8 +92,7 @@ Because we're just experimenting with filtering here, and don't really need to s
 ```{r}
 ebird %>% 
         filter(state == "AK",
-               year == 2008) %>% 
-        glimpse()
+               year == 2008) 
 ```
 
 Note, that's not something you want to do if you actually need to work with the data frame later!  
@@ -197,7 +196,7 @@ ebird %>%
 ```
 
 
-### helper functions  
+### Aside: helper functions  
 
 Sometimes you have a lot of columns that start with the same prefix, or that end with the same appended matter; maybe you want to keep all of them (or get rid of all of them). In these situations, you can use the helper functions `starts_with()` and `ends_with()`. See the `dplyr` cheatsheet for other possible helper functions.  
 
@@ -216,6 +215,10 @@ ebird %>%
         select(ends_with("e")) %>% 
         glimpse()
 ```
+
+Check out the data wrangling cheat sheet for more helper functions. 
+
+### end aside  
 
 
 

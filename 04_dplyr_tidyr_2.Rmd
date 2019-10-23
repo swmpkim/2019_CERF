@@ -92,6 +92,7 @@ wq_trimmed %>%
 ```
 
 
+### Aside - more summarize options  
 
 There are a couple of useful variants of `summarize` for special cases. Note that you can only perform one summary function with these (so you couldn't calculate mean *and* standard deviation in this way).    
 
@@ -118,7 +119,7 @@ wq_trimmed %>%
     View()
 ```
 
-
+### end aside  
 
 
 # Sort  
@@ -202,14 +203,18 @@ wq_trimmed %>%
 
 # Moving data around with `tidyr`  
 
-# PROBABLY WORTH TALKING ABOUT TIDY DATA GENERALLY AND HADLEY'S PAPER  
+
+
+SLIDE SHOW  
+
+
 
 The two major functions in `tidyr` are `pivot_longer()` to make your data frame tall and narrow, and `pivot_wider()` to make it shorter and wider. If you've ever heard of/used `gather()` and `spread()`, these are newer, better versions. `gather()` and `spread()` won't go away, but they are *deprecated* - no longer under active development. It is best to start using the new `pivot` functions moving forward. If you *haven't* heard of these functions, you are about to learn a very useful topic.     
 
 Very often, wide data is the most readable for people. Let's look at an example.    
 
 
-## Background on this dataset  
+## Background on the dataset for this section  
 
 CITATION:
 Boyd WA, Smith MV, Co CA, Pirone JR, Rice JR, Shockley KR, Freedman JH. 2016. Developmental effects of the ToxCast Phase I and II chemicals in Caenorhabditis elegans and corresponding responses in zebrafish, rats, and rabbits. Environ Health Perspect 124:586-593; http://dx.doi.org/10.1289/ehp.1409645.  
@@ -239,7 +244,7 @@ View(tox)
 
 
 
-We'll subset to just the portion that we might want to re-shape, which is the columns that include contain *C. elegans* response and a concentration in the column name.  
+We'll subset to just the portion that we might want to re-shape, which is the columns with both *C. elegans* response and a concentration in the column name, as well as identifier columns. In this case it was easiest to look at the data frame and decide that it's the first 10 columns, rather than trying to figure out the syntax to select using column names or helper functions.    
 
 ```{r}
 tox_cleaned <- tox %>% 
@@ -262,14 +267,13 @@ tox_cleaned %>%
 Think about how we just changed the data frame. This is the key of the `pivot` functions: moving between the shape we started with and the shape we just made. All the other stuff is just details - when you understand the long/wide shapes, you're most of the way to doing what you need.  
 
 
-### extra options  
 
 
 We could also select the columns to pivot by what they start with (or end with, or contain):  
 
 ```{r}
 tox_cleaned %>% 
-    pivot_longer(cols = starts_with("C.elegans.mean.response"), 
+    pivot_longer(cols = starts_with("C.elegans_response"), 
                  names_to = "conc", 
                  values_to = "response")
 ```
@@ -283,75 +287,108 @@ tox_cleaned %>%
     pivot_longer(cols = 4:10, 
                  names_to = "conc", 
                  values_to = "response",
-                 names_prefix = "C.elegans.mean.response")
+                 names_prefix = "C.elegans_response_")
 ```
 
 
-Or, if we wanted to keep that prefix but in a separate column, we can separate the column as we pivot it. 
 
-In this example, it's a little tricky because when we read in the data, spaces were turned into periods. There are two periods separating "C.elegans.mean.response" from the concentraion, however, so we can separate using two periods.  
+We can also separate the names column into multiple columns as we pivot. I've used underscores (`_`) in the column names that split them into four separate components:  
 
-Periods (and some other symbols, like parentheses and square brackets) have special meaning in R, so to tell it to use the periods to separate columns, we have to put two backslashes in front of each period. This is beyond the scope of this workshop so just trust me here. And someday when you run into some issue like this, look up *"regular expressions"*.  
++  "*C. elegans*"  
++  "response"  
++  a concentration (varies by column)  
++  units - "uM"  
+
+Periods, parentheses, brackets, and some other symbols have special meaning in R and if you want to use them as separators, you'll need to look up *"regular expressions"*. This is why I used underscores - they keep it relatively simple.  
+
+When you separate based on a character, you need to make sure to provide the correct number of new column names:   
 
 ```{r}
 tox_cleaned %>% 
-    pivot_longer(cols = starts_with("C.elegans.mean.response"), 
-                 names_to = c("org", "conc"),
-                 names_sep = "\\.\\.",
-                 values_to = "response") %>% 
-    mutate(conc = str_remove(conc, "\\.uM"))
+    pivot_longer(cols = starts_with("C.elegans_response"), 
+                 names_to = c("org", "what", "conc", "units"),
+                 names_sep = "_",
+                 values_to = "response")
 ```
 
 
 
-We also want to get rid of the ".uM" at the end of the `conc` column, so I'm using `stringr::str_remove()`. This is another "beyond the scope; just trust me" - but it's useful to see what happens. The cheet sheat for the `stringr` package is helpful in situations like this. ("Regular expressions" are a thing here too.)
+If you noticed above, `conc` was still a character after we pivoted. We want to make some graphs, so we need it to be a number. There is a way to do this inside the call to `pivot`, at this point it's easier to use what we already know.
 
-```{r}
+### mini-challenge  
+
+What `dplyr` function do you want to use in the following code chunk, to turn `conc` into a number?  
+
+
+```{r, eval = FALSE}
 tox_cleaned %>% 
-    pivot_longer(cols = starts_with("C.elegans.mean.response"), 
-                 names_to = c("org", "conc"),
-                 names_sep = "\\.\\.",
+    pivot_longer(cols = starts_with("C.elegans_response"), 
+                 names_to = c("org", "what", "conc", "units"),
+                 names_sep = "_",
                  values_to = "response") %>% 
-    mutate(conc = str_remove(conc, "\\.uM"))
+    ----(conc = as.numeric(conc))
 ```
 
 
-If you noticed above, `conc` was still a character after we pivoted. We want to make some graphs, so we need it to be a number. What's different about the code chunk below that made this happen?  
+
+Do that, and then fill in the `----`s below to make a plot with response on the y-axis, conc on the x-axis, and facets by chemical name. Add themes, a nice title, and whatever other color and label options you like. Also, look up `?scale_x_log10` to see how to use it, and see if that's a good thing to add to the graph.     
+
+```{r, eval = FALSE}
+tox_cleaned %>% 
+    pivot_longer(cols = starts_with("C.elegans_response"), 
+                 names_to = c("org", "what", "conc", "units"),
+                 names_sep = "_",
+                 values_to = "response") %>% 
+    ----(conc = as.numeric(conc)) %>% 
+    ggplot(aes(x = conc, y = response)) +
+    geom_point() +
+    ----(~ Name)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+### fully pivoted with all clean-up done:  
+
+And saved as its own data frame.  
 
 ```{r}
 tox_long <- tox_cleaned %>% 
-    pivot_longer(cols = starts_with("C.elegans.mean.response"), 
-                 names_to = c("org", "conc"),
-                 names_sep = "\\.\\.",
+    pivot_longer(cols = starts_with("C.elegans_response"), 
+                 names_to = c("org", "what", "conc", "units"),
+                 names_sep = "_",
                  values_to = "response") %>% 
-    mutate(conc = str_remove(conc, "\\.uM"),
-           conc = as.numeric(conc))
+    mutate(conc = as.numeric(conc))
 ```
 
-
-
+A few graphs. We can use all of the `ggplot` knowledge from before!    
 
 ```{r}
 
-ggplot(tox_long, aes(x = conc, y = response, color = Name)) +
-    geom_point(size = 3)
-
 p <- ggplot(tox_long, aes(x = conc, y = response, color = Name)) +
-    geom_point(size = 3)
-
-p +
-    facet_wrap(~Name)
-
-p +
+    geom_point(size = 3) +
     facet_wrap(~Name) +
     scale_x_log10()
 
+p
 
 # add better axis labels and a title; add a theme; remove the legend because
 # the names are at the top of the facets:
 q <- p +
-    facet_wrap(~Name) +
-    scale_x_log10() +
     theme_bw() +
     labs(title = "Toxicity curves for C. elegans",
          x = "concentration (uM)",
@@ -370,7 +407,7 @@ You can get more complicated too, by using `pivot_longer_spec()` if you want to 
 ## `pivot_wider()`  
 
 
-The opposite of `pivot_longer()` is `pivot_wider()`. Sometimes you have one observation split over multiple rows, like in a dataset we'll see shortly, and you want to make certain variables be their own columns. To learn how it works, we'll first widen the *C. elegans* dataset back out, and then work on a slightly more complicated dataset.  
+The opposite of `pivot_longer()` is `pivot_wider()`. Sometimes you have one observation split over multiple rows, and you want to make certain variables be their own columns. To learn how it works, we'll widen the *C. elegans* dataset back out. This same concept also works on other data sets.    
 
 ```{r}
 tox_long %>% 
@@ -382,7 +419,7 @@ Remember that we'd turned that concentration column into a numeric format, and n
 
 ```{r}
 tox_long %>% 
-    pivot_wider(names_from = c(org, conc), values_from = response) %>% 
+    pivot_wider(names_from = c(org, what, conc, units), values_from = response) %>% 
     View()
 ```
 
