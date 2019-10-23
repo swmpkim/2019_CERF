@@ -452,7 +452,7 @@ If you only work with times in their own column, the `hms` library may help you 
 
 ### mini-challenge 6  
 
-`mutate` can be used to add a complete vector of the same value. That is what we'll do below. Fill in the skeleton code to create a column for a full yyyy-mm-dd style date, then make a graph of temperature throughout the year at the water quality stations. You can either color or facet by `station_code`, but differentiate them somehow.  
+`mutate` can be used to add a complete vector of the same value. That is what we'll do below. Fill in the skeleton code to create a column for a full yyyy-mm-dd style date, then make a *line* graph of temperature throughout the year at the water quality stations and color them by station code.  
 
 Which of these stations do you think is at the NERR in Alaska?  
 
@@ -460,9 +460,9 @@ Which of these stations do you think is at the NERR in Alaska?
 wq_trimmed %>% 
     mutate(year = 2016,
            date_pasted = paste(year, month, day, sep = "-"),
-           date = ---(date_pasted)) %>%   # hint: use a lubridate function!
+           date = ----(date_pasted)) %>%   # hint: use a lubridate function!
     ggplot() +
-    geom_line(---(x = date, y = temp_f))
+    geom_----(mapping = ----(x = date, y = temp_f, col = ----))
 ```
 
 
