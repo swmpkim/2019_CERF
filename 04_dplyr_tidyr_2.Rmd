@@ -203,13 +203,61 @@ wq_trimmed %>%
 
 # Moving data around with `tidyr`  
 
+## What is tidy data?  
+
+The following is a summary of *Tidy Data* by Hadley Wickham (2014), a paper that is in your "other resources" folder for this workshop.  
+
+Tidy data is rectangular data where:  
+
++  every **variable** is in its own column  
++  every **observation** is in its own row  
++  every **value** is in its own cell (it belongs to one variable and one observation)   
+
+How do we define *variable*?  "A variable contains all values that measure the same underlying *attribute* (like height, temperature, duration) across units."  
+
+And *observation*?  "An observation contains all values measured on the same *unit* (like a person, or a day, or a race) across attributes."  
 
 
-SLIDE SHOW  
+
+Run the following code chunk to generate "toy data" to follow along with the slides. `tribble` lets us create tibbles (the tidyverse version of a data frame) by row.    
+
+```{r}
+cases <- tribble(
+        ~Country, ~"2011", ~"2012", ~"2013",
+        "FR",    7000,    6900,    7000,
+        "DE",    5800,    6000,    6200,
+        "US",   15000,   14000,   13000
+)
+
+
+pollution <- tribble(
+        ~city, ~size, ~amount,
+        "New York", "large",      23,
+        "New York", "small",      14,
+        "London", "large",      22,
+        "London", "small",      16,
+        "Beijing", "large",     121,
+        "Beijing", "small",     121
+)
+```
 
 
 
 The two major functions in `tidyr` are `pivot_longer()` to make your data frame tall and narrow, and `pivot_wider()` to make it shorter and wider. If you've ever heard of/used `gather()` and `spread()`, these are newer, better versions. `gather()` and `spread()` won't go away, but they are *deprecated* - no longer under active development. It is best to start using the new `pivot` functions moving forward. If you *haven't* heard of these functions, you are about to learn a very useful topic.     
+
+
+
+Here are a couple blank code chunks so you can type along with the slides.  
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+
 
 Very often, wide data is the most readable for people. Let's look at an example.    
 
@@ -312,12 +360,11 @@ tox_cleaned %>%
 ```
 
 
-
-If you noticed above, `conc` was still a character after we pivoted. We want to make some graphs, so we need it to be a number. There is a way to do this inside the call to `pivot`, at this point it's easier to use what we already know.
+If you noticed above, `conc` was still a character after we pivoted. We want to make some graphs, so we need it to be a number. There is a way to do this inside the call to `pivot`, but at this point it's easier to use what we already know.
 
 ### mini-challenge  
 
-What `dplyr` function do you want to use in the following code chunk, to turn `conc` into a number?  
+What `dplyr` function should be used in the following code chunk, to turn `conc` into a number?  
 
 
 ```{r, eval = FALSE}
