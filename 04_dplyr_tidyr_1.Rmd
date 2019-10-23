@@ -18,14 +18,23 @@ library(dplyr)
 library(tidyr)
 library(here)
 library(ggplot2)
+library(lubridate)
 ```
 
 
 Sometimes, the data we're working with is not quite ready for whatever it is we want to do. We may need to summarize the data based on some group, calculate additional parameters, subset the data, or even completely reshape it. The packages `dplyr` and `tidyr` can help with these tasks!  
 
-# dplyr verbs, using ebird data  
+# dplyr verbs 
 
-First, let's read in the ebird data and remind ourselves what's in it:  
+There are three key functions in `dplyr` that are really the workhorses of the tidyverse:  
+
++  `filter()` to subset based on rows
++  `select()` to subset based on columns  
++  `mutate()` to add or modify values in columns  
+
+We will use data downloaded from ebird to explore these.  
+
+First, let's read in the ebird data and explore it:  
 
 ```{r}
 ebird <- read.csv(here::here("data", "eBird_workshop.csv"), stringsAsFactors = FALSE)
@@ -122,9 +131,10 @@ my_states <- c("AK", "AL", "MS")
 And then use `%in%` in the filter statement, to say, e.g. "any of the states _in_ this vector": 
 ```{r}
 ebird_mystates <- ebird %>% 
-        filter(year == 2008,
-               state %in% my_states) %>% 
-        glimpse()
+    filter(year == 2008,
+           state %in% my_states) 
+head(ebird_mystates)
+
 # make sure the states we named, and only the states we named, are represented:
 unique(ebird_mystates$state)
 ```
@@ -133,9 +143,9 @@ You could also skip the step of naming the vector separately:
 
 ```{r}
 ebird %>% 
-        filter(year == 2008,
-               state %in% c("AK", "AL", "MS")) %>% 
-        glimpse()
+    filter(year == 2008,
+           state %in% c("AK", "AL", "MS")) %>% 
+    head()
 ```
 
 
@@ -162,8 +172,8 @@ First, by selecting the columns we **do** want to keep:
 
 ```{r}
 ebird %>% 
-        select(species, state, year) %>% 
-        glimpse()
+    select(species, state, year) %>% 
+    head()
 ```
 
 
@@ -171,8 +181,8 @@ Or second, by using a `-` in front of the columns we **don't** want to keep:
 
 ```{r}
 ebird %>% 
-        select(-samplesize, -presence) %>% 
-        glimpse()
+    select(-samplesize, -presence) %>% 
+    head()
 ```
 
 Either of these can be really handy depending on what your original data frame looks like and what you're trying to do!  
@@ -182,8 +192,8 @@ Order **does** matter in `select()`; remember it didn't matter in `filter()`. In
 
 ```{r}
 ebird %>% 
-        select(year, state, species) %>% 
-        glimpse()
+    select(year, state, species) %>% 
+    head()
 ```
 
 
@@ -333,12 +343,13 @@ wq_trimmed %>%
 
 
 
+
 ### mini-challenge 5  
 
 There are two parts to this. You can approach them separately or within the same series of pipes. Remember to save the result as the new, better, `wq_trimmed` data frame!   
 
 1.  Now that we've started creating more columns, it might make sense to get rid of some old ones. Remove `monthday` and `meaningless_thing` from the `wq_trimmed` data frame.  
-1.  The same person that wants to see `depth` in feet rather than meters *also* wants you to turn `temp` into Fahrenheit, from Celsius. You've looked up the conversion. Now create a new column, `temp_f`, with the new variable.   **F = (9/5)(temp in C) + 32**
+2.  The same person that wants to see `depth` in feet rather than meters *also* wants you to turn `temp` into Fahrenheit, from Celsius. You've looked up the conversion. Now create a new column, `temp_f`, with the new variable.   **F = (9/5)(temp in C) + 32**
 
 
 As with mini-challenge 4, the answer is below. No peeking!  
@@ -368,14 +379,90 @@ View(wq_trimmed)
 
 
 
+## Dates and Times  
 
-# FEELS LIKE BREAK TIME  
-
-If making a graph relaxes you, make a scatterplot of `temp` by `temp_f` and reassure yourself that the points fall on a line. You may want to color and/or facet by `station_code`. Play with other options too, to make the graph as pretty (or as ugly) as you like! When you're ready, take a break!  
+Because we've just worked a little bit with mutate, and one of the things you may find yourself doing is trying to get dates and times in the right format, this seems like a good time to tackle it. We will make up a vector of date-like things and learn how to use the `lubridate` package to deal with them.  
 
 ```{r}
+dates_df <- data.frame(dates01 = c("1-1-2019", "1-2-2019", "1-3-2019"),
+                       dates02 = c("1/1/19", "1/2/19", "1/3/19"),
+                       dates03 = c("2019-01-01", "2019-01-02", "2019-01-03"),
+                       datetime = c("2019-01-01 12:00", "2019-01-01 13:00", 
+                                    "2019-01-01 14:00"))
 
 ```
 
-***  
-*** 
+How are these showing up in the data frame?  
+
+```{r}
+glimpse(dates_df)
+```
+
+If you try to make a time-series graph, it might work; but it will be very, very slow when you have more than 3 values. You also run the risk of dates being shuffled so they're out of order. So we really want those dates to be *dates*.  
+
+This seems like it should be easy in base R, using the `as.Date()` function, but that can give you the wrong output (without so much as a warning!) if your date isn't formatted the way it wants to see it:  
+
+```{r}
+dates_df %>% 
+    mutate(dates01_changed = as.Date(dates01),
+           dates02_changed = as.Date(dates02),
+           dates03_changed = as.Date(dates03))
+```
+
+Enter the lubridate package. It lets you turn character strings and even numbers into dates - or date/times! - by specifying the order of what's in your data as the function name.  
+
+That's hard to explain, so let's just do it. The first column is currently in "m-d-y" (with 4 digits in the year) format. The second is "m/d/y" - similar format, but only two digits in the year. The same lubridate function will work for both of these: `mdy()`. 
+
+```{r}
+dates_df %>% 
+    mutate(dates01_changed = mdy(dates01),
+           dates02_changed = mdy(dates02)) %>% 
+    glimpse()  # to see the structure
+```
+
+Notice the returned date is "yyyy-mm-dd", which is actually a standard date format known as ISO 8601.  
+
+For our 3rd column, it's already in that order we need, but we need it to be a date. Any guesses as to what that function is?  
+
+```{r, eval = FALSE}
+dates_df %>% 
+    mutate(dates01_changed = mdy(dates01),
+           dates02_changed = mdy(dates02),
+           dates03_changed = ---(dates03)) %>% 
+    glimpse()
+```
+
+
+Times make things trickier. R wants date-time columns to be in a format called `POSIX`. There is a function in base R called `as.POSIXct()` that lets you transform different values into that format. It is a burden though to specify the format you're feeding into the function. (If you don't want to take my word for it, look up the help file:  `?as.POSIXct`)
+
+The lubridate package makes it just as simple as the dates we did above. Again, the exact function you want to use depends on the order your date appears, but all you have to do is add `_hm` or `_hms` to the end of your `mdy`/`ymd` function, depending on whether your time has seconds or not.  
+
+```{r}
+dates_df %>% 
+    mutate(dates01_changed = mdy(dates01),
+           dates02_changed = mdy(dates02),
+           dates03_changed = ymd(dates03),
+           datetime_changed = ymd_hm(datetime)) %>% 
+    glimpse()
+```
+
+
+If you only work with times in their own column, the `hms` library may help you out. There are differences between operating systems and software versions in how Excel stores dates and times in its brain, so be VERY CAREFUL and check your transformed data to make sure you have the output you think you have!  
+
+
+### mini-challenge 6  
+
+`mutate` can be used to add a complete vector of the same value. That is what we'll do below. Fill in the skeleton code to create a column for a full yyyy-mm-dd style date, then make a graph of temperature throughout the year at the water quality stations. You can either color or facet by `station_code`, but differentiate them somehow.  
+
+Which of these stations do you think is at the NERR in Alaska?  
+
+```{r, eval = FALSE}
+wq_trimmed %>% 
+    mutate(year = 2016,
+           date_pasted = paste(year, month, day, sep = "-"),
+           date = ---(date_pasted)) %>%   # hint: use a lubridate function!
+    ggplot() +
+    geom_line(---(x = date, y = temp_f))
+```
+
+
