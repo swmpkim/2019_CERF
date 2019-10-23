@@ -43,29 +43,56 @@ ggplot(data = wq) +
 
 ## Your Turn 3
 
+Using the `wq` data, plot temperature (`temp`) by `month` as a scatterplot and facet by station (`station_code`), `state`, and `coast`. 
+Play around with `facet_grid()` and `facet_wrap()`. 
+
+What kinds of things do you notice?
+
+```{r}
+ggplot(data = wq) +
+  geom_point(mapping = aes(x = month, y = temp))
+
+```
+
+## Your Turn 4
+
 Replace this scatterplot with one that draws boxplots. Use the cheatsheet. Try your best guess.
 
 ```{r}
 ggplot(data = wq) +
   geom_point(mapping = aes(x = coast, y = temp))
 
-ggplot(data = wq) +
-  geom_boxplot(mapping = aes(x = coast, y = temp))
-
-ggplot(data = wq) +
-  geom_boxplot(mapping = aes(x = coast, y = temp, color = state))
-
 ```
 
-## Your Turn 4
+## Your Turn 5
 
 Predict what this code will do. Then run it.
 
 ```{r}
 ggplot(wq) +
   geom_point(aes(temp, do_mgl)) +
-  geom_smooth(aes(temp, do_mgl))
+  geom_smooth(aes(temp, do_mgl)) 
+
 ```
+
+## Your Turn 6
+
+Load the data file and ...
+
+```{r}
+day <- read.csv(here::here('data', 'daily_wq.csv'))
+
+```
+
+
+
+
+
+
+
+
+
+
 
 ## Your Turn 5
 
