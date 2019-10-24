@@ -5,7 +5,7 @@ output:
     df_print: paged
 ---
 
-<!-- This file was adapted from the orignal work at https://github.com/rstudio/master-the-tidyverse by RStudio. -->
+<!-- This file by Shannon Dunnigan was adapted from the orignal work at https://github.com/rstudio/master-the-tidyverse by RStudio. -->
 
 ```{r setup}
 library(tidyverse)
@@ -46,7 +46,7 @@ ggplot(data = wq) +
 Using the `wq` data, plot temperature (`temp`) by `month` as a scatterplot and facet by station (`station_code`), `state`, and `coast`. 
 Play around with `facet_grid()` and `facet_wrap()`. 
 
-What kinds of things do you notice?
+*What kinds of things do you notice?*
 
 ```{r}
 ggplot(data = wq) +
@@ -60,11 +60,35 @@ Replace this scatterplot with one that draws boxplots. Use the cheatsheet. Try y
 
 ```{r}
 ggplot(data = wq) +
-  geom_point(mapping = aes(x = coast, y = temp))
+  geom_point(mapping = aes(x = coast, y = temp)) 
 
 ```
 
 ## Your Turn 5
+
+Load the `diamonds` dataset and examine it. *ahem* Remember the `glimpse()` function? This data set contains prices and other attributes of diamonds and is provided by the `ggplot2` package.
+
+Create a bar chart of cut colored by cut. Use the cheatsheet. 
+
+```{r}
+diamonds
+
+```
+
+## Your Turn 6
+
+Determine what the default stat is for each of the following geoms:
+
+`geom_line`
+`geom_density`
+`geom_smooth`
+
+```{r}
+
+
+```
+
+## Your Turn 7
 
 Predict what this code will do. Then run it.
 
@@ -75,26 +99,23 @@ ggplot(wq) +
 
 ```
 
-## Your Turn 6
+## Your Turn 8 : SCALES
 
 Load the data file and ...
 
 ```{r}
 day <- read.csv(here::here('data', 'daily_wq.csv'))
+ggplot(data = day) +
+  geom_boxplot(aes(x = coast, y = do_mgl, color = state))
+```
+
+## Your Turn 9: THEMES
+
+```{r}
 
 ```
 
-
-
-
-
-
-
-
-
-
-
-## Your Turn 5
+## Your Turn 10 
 
 What does `getwd()` return?
 
@@ -102,7 +123,7 @@ What does `getwd()` return?
 getwd()
 ```
 
-## Your Turn 6
+## Your Turn 11
 
 Save the last plot and then locate it in the files pane.
 
@@ -110,13 +131,12 @@ Save the last plot and then locate it in the files pane.
 
 ```
 
-## MAKE IT
+## MINI CHALLENGE
 
-Using the plot below, customize the themes and colors to make it the ugliest thing you can. Hint: you may want to plot it first before you begin.
+Using the wq data below, customize the themes and colors to make it the *ugliest* thing you can. Hint: you may want to plot it first before you begin.
 
 ``` {r ugly}
-ggplot(data = wq, aes(x = month, y = do_mgl)) +
-  geom_point(size = 3) 
+ 
 ```
 
 ***
@@ -127,5 +147,11 @@ You can use this code template to make thousands of graphs with **ggplot2**.
 
 ```{r, eval = FALSE}
 ggplot(data = <DATA>) +
-  <GEOM_FUNCTION>(mapping = aes(<MAPPINGS>))
+  <GEOM_FUNCTION>(mapping = aes(<MAPPINGS>),
+                  stat = <STAT>,
+                  position = <POSITION>) +
+  <COORDINATE_FUNCTION> +
+  <FACET_FUNCTION> +
+  <SCALE_FUNCTION> +
+  <THEME_FUNCTION>
 ```
