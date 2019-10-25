@@ -1,5 +1,5 @@
 ---
-title: "Working With Data in dplyr and tidyr"
+title: "Working with data: main dplyr verbs"
 author: "Kim Cressman"
 output: 
     html_document:
