@@ -13,13 +13,6 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-
-Additional resources to help teach this:
-Software Carpentry, Programming with R: 
-for loops:  http://swcarpentry.github.io/r-novice-inflammation/03-loops-R/index.html  
-
-whole lesson: http://swcarpentry.github.io/r-novice-inflammation/
-
 Setup:
 
 ```{r, message = FALSE, warning = FALSE}
@@ -45,8 +38,6 @@ wq_trimmed <- wq %>%
 
 # Functions  
 
-Starting with this because most of the time, a function will solve your problems.  
-
 There is a principle in programming known as **DRY** - **D**on't **R**epeat **Y**ourself.  
 
 I'm not here to shame you for copying-and-pasting, then making a little change to, code that works. We all do that.  
@@ -64,7 +55,7 @@ You've got some **working code** that gives you an **output** you want. And you 
     +  put *data* arguments first  
     +  *detail* arguments should go at the end, and should usually have default values
 
-You also need to be aware of the **environment** in which you call the function. Again from R4DS: "The environment of a function controls how R finds the value asociated with a name." We will come back to this a little later when you've seen the structure of a function - but essentially what it means is, if you use some variable in your function but don't make it an argument, R is going to look "upstream" from your function and try to find something with that name.  
+You also need to be aware of the **environment** in which you call the function. Again from R4DS: "The environment of a function controls how R finds the value asociated with a name." What this means is, if you use some variable in your function but don't make it an argument, R is going to look "upstream" from your function and try to find something with that name. You can probably get by for a while without worrying about this at all, but it's good to be aware of in case you do have issues with a function.    
 
 
 ## Function Example  
@@ -330,8 +321,8 @@ divide_by <- function(x, y = 10){
 }
 
 divide_by(test$sal, 10)
-divide_by(test$sal, 100)
 divide_by(test$sal)
+divide_by(test$sal, 100)
 ```
 
 
@@ -357,7 +348,7 @@ divide_by(test$sal)
 
 
 
-## Other function testing  
+### Aside - other function testing  
 
 What do you think will happen if we run these lines of code?  
 
@@ -392,10 +383,14 @@ divide_by(test$sal, TRUE)
 divide_by(test$station_code, 10)
 ```
 
+For more thorough testing, check out the `testthat` and `assertthat` packages.
+
+### end aside  
+
 
 # Functions using graphs  
 
-What we've done so far today has been very tidyverse-heavy. The tidyverse reduces the cognitive burden when it comes to interactively exploring and analyzing data. However, it does make it a bit more difficult to program. We won't go into details today, but we will go over some "cheats" to make it easy to take a graph that you like and turn it into a function.  
+What we've done so far today has been very tidyverse-heavy. The tidyverse reduces  cognitive burden when it comes to interactively exploring and analyzing data. However, it does mean that when you're writing your own functions that build on tidyverse functions, you need to handle the code a bit differently.  
 
 First we'll make a simple plot. I'm not claiming that this is pretty.  
 
@@ -405,7 +400,7 @@ ggplot(wq_trimmed) +
 ```
 
 
-Say we want to make this plot for a variety of pairs of parameters, and our data frame may not always be called `wq_trimmmed`. So these are three arguments that we want to be able to specify. When we use RStudio's menu to extract a function, it gives us four - it includes station_code, and looks like this:    
+Say we want to make this plot for a variety of pairs of parameters, and our data frame may not always be called `wq_trimmmed`. So these are three arguments that we want to be able to specify. When we use RStudio's menu to extract a function, it gives us four - it includes the data frame as the first argument - and it looks like this:    
 
 ```{r}
 my_plot <- function(wq_trimmed, sal, do_pct, station_code) {
@@ -431,7 +426,7 @@ my_plot(wq_trimmed, sal, do_pct, station_code)
 ```
 
 
-Working interactively in the tidyverse is easy because it bypasses some of the rules that R uses to associate function arguments with names in the data. This makes it a bit trickier to use some of our favorite tidyverse functions inside functions that we write. Recently, however, they made it easier to deal with this problem; and now we need to simply wrap the arguments that will change inside two curly braces `{{ }}`.  
+Working interactively in the tidyverse is easy because it bypasses some of the rules that R uses to associate function arguments with names in the data. This makes it a bit trickier to use some of our favorite tidyverse functions inside functions that we write. Recently, however, tidyverse developers made it easier to deal with this problem; and now we need to simply wrap the arguments that will change inside two curly braces `{{ }}`.  
 
 ```{r}
 my_plot <- function(data, param1, param2, param3) {
@@ -442,6 +437,8 @@ my_plot <- function(data, param1, param2, param3) {
 my_plot(wq_trimmed, sal, do_pct, station_code)
 my_plot(wq_trimmed, sal, do_pct, month)  # we may want to go up into our function
 # and specify that we want to turn the "col" argument into a factor
+
+my_plot(wq_trimmed, sal, do_pct, factor(month))  # or we can just force it for this one function call
 
 # try it yourself!  
 ```
@@ -472,7 +469,6 @@ my_plot(wq_trimmed, sal, do_pct, month)
 ### mini-challenge  
 
 # ?????   
-
 
 
 
