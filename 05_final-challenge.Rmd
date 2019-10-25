@@ -19,21 +19,9 @@ Setup:
 library(dplyr)
 library(tidyr)
 library(here)
-library(stringr)
 library(ggplot2)
 ```
 
-```{r}
-ebird <- read.csv(here::here("data", "eBird_workshop.csv"), stringsAsFactors = FALSE)
-ebird <- dplyr::distinct(ebird)
-
-wq <- read.csv(here::here("data", "daily_wq.csv"), stringsAsFactors = FALSE)
-wq_trimmed <- wq %>%
-    select(station_code, month, day, temp, sal, do_pct, depth) %>%
-    filter(!is.na(depth)) %>%
-    mutate(depth_ft = depth * 3.28,
-           temp_f = (9/5) * temp + 32)
-```
 
 
 # Final challenge  
@@ -61,7 +49,9 @@ sd( x, na.rm = TRUE) / sqrt( sum(!is.na( x )) )
 sterr <- ---------
 ```
 
-Write another function to calculate depth in feet, from meters. The conversion is:  
+Write another function to calculate depth in feet, from meters. (Yes, I know this math is probably easier to just *do* in a call to `mutate`. Humor me and practice your function-writing.) 
+
+The conversion is:  
 `feet = meters * 3.28`  
 
 ```{r}
@@ -92,7 +82,6 @@ for(i in seq_along(my_files)){
     
     # make and print a line graph of depth in feet, 
     # where each year is a different color 
-    
     # add in an informative title and axis labels, and do whatever theme/colors you want
     q <- ggplot(dat) +
         geom_line(aes(x = date, y = depth_ft, col = factor(year))) +
@@ -103,6 +92,10 @@ for(i in seq_along(my_files)){
     
     # now generate a summary table, by year,
     # to show min, median, mean, max, and sterr of depth_ft
+    # hint: if you use a filter statement to get rid of 
+    # rows where depth_ft is NA  (in the dplyr script we learned how
+    # to negate "is.na" ), you don't have to worry about
+    # using "na.rm = TRUE" in each individual summary function
     dat %>% 
         group_by(year) %>% 
         filter(!is.na(depth_ft)) %>% 
@@ -116,7 +109,6 @@ for(i in seq_along(my_files)){
     # Group by year and month, calculate only the mean of depth_ft,
     # and pivot the data so that months are columns
     dat %>% 
-        select(year, month, depth_ft) %>% 
         group_by(year, month) %>% 
         filter(!is.na(depth_ft)) %>% 
         summarize(mean = mean(depth_ft)) %>% 
