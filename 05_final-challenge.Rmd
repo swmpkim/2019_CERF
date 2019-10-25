@@ -38,8 +38,92 @@ wq_trimmed <- wq %>%
 
 # Final challenge  
 
-For our final challenge, you are going to put together the things that you've learned throughout the day.  
+For our final challenge, you are going to put together the things that you've learned throughout the day. You will write a loop to read in each of a few files, and produce a summary table and graph for each.  
 
-## Part 1  
 
-From the "final_challenge" folder, 
+## 1. Build up vector of file names
+
+Station names are provided below. Fill in the second piece of code to make a vector of file names, that are the station names with ".csv" on the end. (Hint: look up `paste` and `paste0`)    
+
+```{r}
+my_files <- dir(here::here("data", "final_challenge"))
+```
+
+
+
+## 2. Write functions  
+
+Write a function to calculate standard error. Name it `sterr`. Recall that the body of the function should look something like this:  
+
+```{r}
+sd( x, na.rm = TRUE) / sqrt( sum(!is.na( x )) )
+
+sterr <- ---------
+```
+
+Write another function to calculate depth in feet, from meters. The conversion is:  
+`feet = meters * 3.28`  
+
+```{r}
+m_to_ft <- ---------
+```
+
+
+
+## 3. Fill in the loop structure  
+
+# need to go over lubridate::year and month in dplyr script
+
+```{r}
+for(i in seq_along(my_files)){
+    # find the file
+    in_file <- here::here("data", "final_challenge", my_files[i])
+    
+    # read in the file
+    dat <- read.csv(in_file, stringsAsFactors = FALSE)
+    
+    # make a new column for depth in feet. 
+    # also make sure that date is correctly seen as a date.
+    dat <- dat %>% 
+        mutate(depth_ft = m_to_ft(depth),
+               date = lubridate::ymd(date),
+               year = lubridate::year(date),
+               month = lubridate::month(date))
+    
+    # make and print a line graph of depth in feet, 
+    # where each year is a different color 
+    
+    # add in an informative title and axis labels, and do whatever theme/colors you want
+    q <- ggplot(dat) +
+        geom_line(aes(x = date, y = depth_ft, col = factor(year))) +
+        theme_bw() +
+        labs(title = my_stations[i])
+    
+    print(q)
+    
+    # now generate a summary table, by year,
+    # to show min, median, mean, max, and sterr of depth_ft
+    dat %>% 
+        group_by(year) %>% 
+        filter(!is.na(depth_ft)) %>% 
+        summarize(min = min(depth_ft),
+                  median = median(depth_ft),
+                  mean = mean(depth_ft),
+                  max = max(depth_ft),
+                  sterr = sterr(depth_ft)) %>% 
+        print()
+    
+    # Group by year and month, calculate only the mean of depth_ft,
+    # and pivot the data so that months are columns
+    dat %>% 
+        select(year, month, depth_ft) %>% 
+        group_by(year, month) %>% 
+        filter(!is.na(depth_ft)) %>% 
+        summarize(mean = mean(depth_ft)) %>% 
+        pivot_wider(names_from = "month", values_from = "mean") %>% 
+        print()
+        
+}
+```
+
+
