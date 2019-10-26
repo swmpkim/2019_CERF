@@ -99,22 +99,6 @@ ggplot(wq) +
 
 ```
 
-## Your Turn 8 : SCALES
-
-Load the data file and ...
-
-```{r}
-day <- read.csv(here::here('data', 'daily_wq.csv'))
-ggplot(data = day) +
-  geom_boxplot(aes(x = coast, y = do_mgl, color = state))
-```
-
-## Your Turn 9: THEMES
-
-```{r}
-
-```
-
 ## Your Turn 10 
 
 What does `getwd()` return?
@@ -133,10 +117,12 @@ Save the last plot and then locate it in the files pane.
 
 ## MINI CHALLENGE
 
-Using the wq data below, customize the themes and colors to make it the *ugliest* thing you can. Hint: you may want to plot it first before you begin.
+Using the diamonds data make a scatterplot of carat by price and color by clarity. 
+Customize the themes and colors of the plot to make it the *ugliest* plot that you can. 
 
 ``` {r ugly}
- 
+ggplot(data = diamonds) +
+  geom_point(aes(x = carat, y = price, color = clarity))
 ```
 
 ***
