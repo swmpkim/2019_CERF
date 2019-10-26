@@ -5,20 +5,22 @@ output:
     df_print: paged
 ---
 
-<!-- This file by Charlotte Wickham is licensed under a Creative Commons Attribution 4.0 International License, adapted from the orignal work at https://github.com/rstudio/master-the-tidyverse by RStudio. -->
+<!-- This file by Shannon Dunnigan was adapted from the orignal work at https://github.com/rstudio/master-the-tidyverse by RStudio. -->
 
 ```{r setup}
 library(tidyverse)
+library(here)
 ```
 
 
-```{r}
-mpg
+```{r loaddata}
+wq <- read.csv(here::here('data', 'monthly_wq.csv')) 
+
 ```
 
 ## Quiz
 
-What relationship do you expect to see between engine size (displ) and highway fuel efficiency (hwy)?
+What relationship do you expect to see between temperature (temp) and dissolved oxygen (do_mgl)?
 
 ## Your Turn 1
 
@@ -34,43 +36,55 @@ Run the code on the slide to make a graph. Pay strict attention to spelling, cap
 Add `color`, `size`, `alpha`, and `shape` aesthetics to your graph. Experiment.  
 
 ```{r}
-ggplot(data = mpg) + 
-  geom_point(mapping = aes(x = displ, y = hwy))
+ggplot(data = wq) + 
+  geom_point(mapping = aes(x = temp, y = do_mgl))
+
 ```
 
 ## Your Turn 3
 
-Replace this scatterplot with one that draws boxplots. Use the cheatsheet. Try your best guess.
+Using the `wq` data, plot temperature (`temp`) by `month` as a scatterplot and facet by station (`station_code`), `state`, and `coast`. 
+Play around with `facet_grid()` and `facet_wrap()`. 
+
+*What kinds of things do you notice?*
 
 ```{r}
-ggplot(data = mpg) +
-  geom_point(mapping = aes(x = class, y = hwy))
+ggplot(data = wq) +
+  geom_point(mapping = aes(x = month, y = temp))
+
 ```
 
 ## Your Turn 4
 
-Make a histogram of the `hwy` variable from `mpg`.
+Replace this scatterplot with one that draws boxplots. Use the cheatsheet. Try your best guess.
 
 ```{r}
-ggplot(data = mpg) 
+ggplot(data = wq) +
+  geom_point(mapping = aes(x = coast, y = temp)) 
 
 ```
 
 ## Your Turn 5
 
-Make a density plot of `hwy` colored by `class`.
+Load the `diamonds` dataset and examine it. *ahem* Remember the `glimpse()` function? This data set contains prices and other attributes of diamonds and is provided by the `ggplot2` package.
+
+Create a bar chart of `cut` colored by `cut`. Use the cheatsheet. 
 
 ```{r}
-ggplot(data = mpg) 
+diamonds
 
 ```
 
 ## Your Turn 6
 
-Make a bar chart `class` colored by `class`.
+Determine what the default stat is for each of the following geoms:
+
+`geom_line()`
+`geom_density()`
+`geom_smooth()`
 
 ```{r}
-ggplot(data = mpg) 
+
 
 ```
 
@@ -79,12 +93,13 @@ ggplot(data = mpg)
 Predict what this code will do. Then run it.
 
 ```{r}
-ggplot(mpg) + 
-  geom_point(aes(displ, hwy)) +
-  geom_smooth(aes(displ, hwy))
+ggplot(wq) +
+  geom_point(aes(temp, do_mgl)) +
+  geom_smooth(aes(temp, do_mgl)) 
+
 ```
 
-## Your Turn 8
+## Your Turn 8 
 
 What does `getwd()` return?
 
@@ -100,6 +115,16 @@ Save the last plot and then locate it in the files pane.
 
 ```
 
+## MINI CHALLENGE
+
+Using the `diamonds` data make a scatterplot of `carat` by `price` and assign color by `clarity`. 
+Customize the themes and colors of the plot to make it the *ugliest* plot that you can. 
+Save this plot in your files pane.
+
+``` {r ugly}
+
+```
+
 ***
 
 # Take aways
@@ -108,5 +133,11 @@ You can use this code template to make thousands of graphs with **ggplot2**.
 
 ```{r, eval = FALSE}
 ggplot(data = <DATA>) +
-  <GEOM_FUNCTION>(mapping = aes(<MAPPINGS>))
+  <GEOM_FUNCTION>(mapping = aes(<MAPPINGS>),
+                  stat = <STAT>,
+                  position = <POSITION>) +
+  <COORDINATE_FUNCTION> +
+  <FACET_FUNCTION> +
+  <SCALE_FUNCTION> +
+  <THEME_FUNCTION>
 ```
