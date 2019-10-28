@@ -16,8 +16,6 @@ knitr::opts_chunk$set(echo = TRUE)
 
 <br>
 
-__[How to get unstuck](http://stat545.com/help-general.html)__ - from STAT 545  
-
 
 __[Where to get help with your R question?](https://masalmon.eu/2018/07/22/wheretogethelp/)__ - from Maelle Salmon's blog  
 
@@ -55,9 +53,14 @@ __[RStudio webinars](https://resources.rstudio.com/webinars)__  Several helpful 
 
 # Communities  
 
-Email lists, etc.  
-R4DS community  
-`#tidytuesday`
+__[RStudio Community Forums](https://community.rstudio.com/)__  
+
+__[R4DS community](https://www.rfordatasci.com/)__ - Be sure to join the slack channel  
+
+__[ROpenSci](https://ropensci.org/community/)__    
+
+__[Tidy Tuesday](https://github.com/rfordatascience/tidytuesday)__    
+
 
 
 # Free Online Books  
@@ -70,7 +73,7 @@ __[R For Data Science](https://r4ds.had.co.nz/)__ - by Hadley Wickham and Garret
 
 __[Getting used to R, RStudio, and R Markdown](https://bookdown.org/chesterismay/rbasics/)__ - by Chester Ismay
 
-__[Advanced R](http://adv-r.had.co.nz/)__ - by Hadley Wickham  
+__[Advanced R](https://adv-r.hadley.nz/)__ , 2nd edition - by Hadley Wickham  
 
 __[R Packages](http://r-pkgs.had.co.nz/)__ - by Hadley Wickham
 
