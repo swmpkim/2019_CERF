@@ -194,7 +194,7 @@ tox_cleaned %>%
 
 If you noticed above, `conc` was still a character after we pivoted. We want to make some graphs, so we need it to be a number. There is a way to do this inside the call to `pivot`, but at this point it's easier to use what we already know.
 
-### mini-challenge  
+### Your Turn 1  
 
 What `dplyr` function should be used in the following code chunk, to turn `conc` into a number?  
 
@@ -305,7 +305,9 @@ tox_long %>%
 So with this dataset, we've gone from wide to long, and back again. 
 
 
-## mini-challenge: reshaping final exam from the slideshow  
+## Your Turn 2  
+
+Using the ebird dataset, filter the data frame to only include data from the `year` 2012; remove the `samplesize` column; then pivot so that each `state` is a column header, each row is a species, and the value in each cell is `presence` for that state/species combination.  
 
 ```{r}
 
