@@ -43,7 +43,7 @@ ggplot(data = wq) +
 
 ## Your Turn 3
 
-Using the `wq` data, plot temperature (`temp`) by `month` as a scatterplot and facet by station (`station_code`), `state`, and `coast`. 
+Using the `wq` data, plot temperature (`temp`) by `month` as a scatterplot and facet by `state` and `coast`. 
 Play around with `facet_grid()` and `facet_wrap()`. 
 
 *What kinds of things do you notice?*
