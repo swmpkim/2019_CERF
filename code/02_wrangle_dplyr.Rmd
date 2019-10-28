@@ -7,6 +7,7 @@ output:
     toc_depth: 3
     toc_float:
       collapsed: no
+    df_print: tibble
 ---
 
 ```{r setup, include=FALSE}

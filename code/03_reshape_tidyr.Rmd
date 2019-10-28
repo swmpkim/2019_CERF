@@ -3,10 +3,11 @@ title: "Working with data: tidyr and pivoting"
 author: "Kim Cressman"
 output:
   html_document:
-    toc: true
+    toc: yes
     toc_depth: 3
     toc_float:
-      collapsed: false
+      collapsed: no
+    df_print: tibble
 ---
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)

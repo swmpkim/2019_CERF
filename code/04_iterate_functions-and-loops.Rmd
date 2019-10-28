@@ -2,11 +2,12 @@
 title: "Functions and Loops"
 author: "Kim Cressman"
 output: 
-    html_document:
-        toc: true
-        toc_depth: 3
-        toc_float:
-            collapsed: false
+  html_document:
+    toc: yes
+    toc_depth: 3
+    toc_float:
+      collapsed: no
+    df_print: tibble
 ---
 
 ```{r setup, include=FALSE}
