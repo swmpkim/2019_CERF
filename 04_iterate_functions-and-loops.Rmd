@@ -19,7 +19,6 @@ Setup:
 library(dplyr)
 library(tidyr)
 library(here)
-library(stringr)
 library(ggplot2)
 ```
 
@@ -117,6 +116,9 @@ sum(!is.na(test2))
 
 #### end of aside  
 
+***  
+***  
+
 
 
 ```{r}
@@ -185,7 +187,7 @@ Let's check it on our bigger data frame!
 sterr(wq_trimmed$temp_f)
 ```
 
-### mini-challenge  
+### mini-challenge 1  
 
 Use `group_by`, `summarize`, and our new `sterr` function to generate a table of standard error by month, by station, for `temp_f`. Does the standard error at `gndblwq` for January (month 1) match our output from above?    
 
@@ -222,7 +224,7 @@ wq_trimmed %>%
 
 
 
-### (not-so-) mini-challenge  
+### (not-so-) mini-challenge 2  
 
 Now **you** write a function! Name it `divide_by_10`. The input should be a vector (like we did with `sterr`), and the output should be each value of that vector divided by 10.  
 
@@ -268,7 +270,7 @@ divide_by_10(test$sal)
 ```
 
 
-### mini-challenge 3?   
+### mini-challenge 3   
 
 
 Now. What if we want to divide by something other than 10? Generalize the function to take two arguments as input. The second input (call it `y`) should be the denominator in your `divide_by` function.  
@@ -332,7 +334,7 @@ Remember, it's a good idea to put the *data* argument first.
 
 
 
-### mini-challenge  
+### mini-challenge 4  
 
 Change the names of the arguments in this function from `x` and `y` to `num` (to represent numerator) and `denom` (for denominator). Make sure it still works.
 
@@ -386,6 +388,9 @@ divide_by(test$station_code, 10)
 For more thorough testing, check out the `testthat` and `assertthat` packages.
 
 ### end aside  
+
+***  
+***  
 
 
 # Functions using graphs  
@@ -466,7 +471,7 @@ my_plot(wq_trimmed, sal, do_pct, month)
 #### end aside
 
 
-### mini-challenge  
+### mini-challenge 5  
 
 # ?????   
 
@@ -546,7 +551,7 @@ i <- 2
 
 
 
-### mini-challenge no idea what number  
+### mini-challenge 6  
 
 Now, imagine you've never heard of `ggplot2`'s `facet` capabilities, and you want to make a separate "`my_plot`" for each station in the datset.    
 
