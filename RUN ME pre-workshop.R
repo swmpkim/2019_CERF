@@ -3,6 +3,7 @@
 # ------------------------------------------------------------------
 
 # Select all the code below and click "Run"
-reqpackages <- c("tidyverse", "tidyr", "rmarkdown", "knitr", "here", "janitor", "ggThemeAssist")
+reqpackages <- c("tidyverse", "tidyr", "rmarkdown", "knitr",
+                 "here", "janitor", "shiny", "ggThemeAssist")
 
 install.packages(reqpackages)
