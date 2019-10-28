@@ -18,4 +18,25 @@ Shannon Dunnigan, Guana Tolomato Matanzas NERR  |  [Shannon.Dunnigan@FloridaDEP.
 
 ### Required Materials:
 
-You'll be using RStudio Cloud, so on the day of the workshop all you'll need is a personal laptop that can access the internet.
+laptop with:  
+
++  R, version 3.5 or higher  
++  RStudio, most recent version for your OS  
+
+**Please run the `pre-workshop RUN ME.R` script to install all necessary packages**  
+
+## Schedule  
+
+Time | Objective 
+----|----
+8:00 - 8:45 | Welcome, Introductions, Workshop Objectives  
+8:45 - 9:45 | Visualize Data, part 1  
+**9:45 - 10:00** | **Morning Break**   
+10:00 - 10:30 | Visualize Data, part 2  
+10:30 - 11:30 | Wrangle Data, part 1  
+**11:30 - 13:00** | **Lunch** (on your own)  
+13:00 - 13:30 | Wrangle Data, part 2  
+13:30 - 14:30 | Re-shape Data  
+**14:30 - 14:45** | **Afternoon Break**  
+14:45 - 15:45 | Functions and Loops  
+15:45 - 16:00 | Final Challenge, open questions, wrap-up  
