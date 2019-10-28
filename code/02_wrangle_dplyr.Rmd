@@ -1,12 +1,12 @@
 ---
-title: "Working with data: main dplyr verbs"
+title: 'Working with data: main dplyr verbs'
 author: "Kim Cressman"
-output: 
-    html_document:
-        toc: true
-        toc_depth: 3
-        toc_float:
-            collapsed: false
+output:
+  html_document:
+    toc: yes
+    toc_depth: 3
+    toc_float:
+      collapsed: no
 ---
 
 ```{r setup, include=FALSE}
