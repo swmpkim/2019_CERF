@@ -23,7 +23,7 @@ laptop with:
 +  R, version 3.5 or higher  
 +  RStudio, most recent version for your OS  
 
-**Please run the `pre-workshop RUN ME.R` script to install all necessary packages**  
+**Please run the `RUN ME pre-workshop.R` script to install all necessary packages**  
 
 ## Schedule  
 
