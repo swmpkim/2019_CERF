@@ -473,7 +473,12 @@ my_plot(wq_trimmed, sal, do_pct, month)
 
 ### mini-challenge 5  
 
-# ?????   
+Add theme elements to the plot in your `my_plot` function to make it a plot you actually *want* to reproduce. Then use your function on at least two combinations of parameters (we suggest `do_pct` vs `temp`, and `do_pct` vs `sal`).  
+
+```{r}
+
+```
+
 
 
 
@@ -630,4 +635,4 @@ What have we done?
 +  used the `i` index value to specify *where* in that output vector we want the value from each iteration of the loop
 
 
-This concept can be extended to files in a folder on your computer: read in a file, make a bunch of graphs, and save them out as a pdf. Or read in all your daily files for the week, append them together, and save out a single weekly file.  
+This concept can be extended to files in a folder on your computer: read in a file, make a bunch of graphs, and save them out as a pdf. Or read in all your daily files for the week, append them together (look up `bind_rows()` in the `dplyr` package), and save out a single weekly file. We will practice some of this in the final challenge.    
