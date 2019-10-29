@@ -1,4 +1,5 @@
-This is the repo for Kim and Shannon's materials for the R workshop *The Next Step with R: Data Management, Graphics, and Functions* at CERF 2019 in Mobile, AL on Sunday, November 3. Workshop page here: https://www.cerf.science/the-next-step-with-r-data-management-graphics-and-functions
+This is the repo for Kim and Shannon's materials for the R workshop *The Next Step with R: Data Management, Graphics, and Functions* at CERF 2019 in Mobile, AL on Sunday, November 3. Workshop page here: https://www.cerf.science/the-next-step-with-r-data-management-graphics-and-functions  
+
 
 ## Time and Location  
 
@@ -24,6 +25,12 @@ laptop with:
 +  RStudio, most recent version for your OS  
 
 **Please run the `RUN_ME_pre-workshop.R` script to install all necessary packages**  
+
+
+The materials in this repo are also available and can be run on rstudio.cloud:  
+[https://rstudio.cloud/project/662460](https://rstudio.cloud/project/662460)  
+
+
 
 ## Schedule  
 
