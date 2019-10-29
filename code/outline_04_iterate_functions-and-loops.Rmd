@@ -1,0 +1,598 @@
+---
+title: "Functions and Loops"
+author: "Kim Cressman"
+output: 
+  html_document:
+    toc: yes
+    toc_depth: 3
+    toc_float:
+      collapsed: no
+    df_print: tibble
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Setup:
+
+```{r, message = FALSE, warning = FALSE}
+library(dplyr)
+library(tidyr)
+library(here)
+library(ggplot2)
+```
+
+```{r}
+ebird <- read.csv(here::here("data", "eBird_workshop.csv"), stringsAsFactors = FALSE)
+ebird <- dplyr::distinct(ebird)
+
+wq <- read.csv(here::here("data", "daily_wq.csv"), stringsAsFactors = FALSE)
+wq_trimmed <- wq %>%
+    select(station_code, month, day, temp, sal, do_pct, depth) %>%
+    filter(!is.na(depth)) %>%
+    mutate(depth_ft = depth * 3.28,
+           temp_f = (9/5) * temp + 32)
+```
+
+
+# Functions  
+
+There is a principle in programming known as **DRY** - **D**on't **R**epeat **Y**ourself.  
+
+I'm not here to shame you for copying-and-pasting, then making a little change to, code that works. We all do that.  
+
+However. If you've used the same chunk of code more than 3 times, you may want to consider writing a *function*. This can reduce errors due to typos (or just forgetting to change something in some spot), and also makes it easier to re-run a whole pile of code when you realize something needed to change - you only have to change it in one place!    
+
+## Outline of a function  
+
+You've got some **working code** that gives you an **output** you want. And you identify the **pieces that you want to change**. These bold parts are the three parts of a function:  
+
+1.  your working code is the **body**.  
+2.  the output is known as the **return value**. It can be a single value, or a data frame, or a list.... whatever you want it to be.  
+3.  the part(s) that you change are the **arguments** (also known as "formals").  
+    +  some advice from Hadley Wickham and Garrett Grolemund, in ["R for Data Science"](https://r4ds.had.co.nz/) (aka *R4DS*):  
+    +  put *data* arguments first  
+    +  *detail* arguments should go at the end, and should usually have default values
+
+You also need to be aware of the **environment** in which you call the function. Again from R4DS: "The environment of a function controls how R finds the value asociated with a name." What this means is, if you use some variable in your function but don't make it an argument, R is going to look "upstream" from your function and try to find something with that name. You can probably get by for a while without worrying about this at all, but it's good to be aware of in case you do have issues with a function.    
+
+
+## Function Example  
+
+R has functions to calculate mean and standard deviation of a dataset, but there isn't one for standard error. Remember, `standard error = sd / sqrt(n)`. 
+
+Let's get this working on a small chunk of data. I like to pull out a little bit and call it "test".   
+
+```{r}
+
+
+
+# let's build up to it:  
+
+# stdev:
+
+
+# sample size:  
+
+
+# what if there were NAs though? remove them:
+# have to use "sum" because we're switching to a logical
+
+```
+
+
+#### Aside that we won't go through in the workshop  
+
+I figured out the `sum(!is.na(etc))` part the hard way, btw - that's often the toughest part of a function - getting the code to do what you want it to. For reference, here are my steps (the code here won't be evaluated when this document is knitted). Some of these worked, and some of them didn't.    
+
+```{r, eval = FALSE}
+length(test$temp_f, na.rm = TRUE) 
+# R doesn't like that argument at all
+
+# does this work?
+length(!is.na(test$temp_f))
+# well.... maybe. it does return a number.
+
+
+# let's create a smaller dataset and introduce some NAs to make sure
+test2 <- test$temp_f
+test2[2:3] <- NA  
+
+
+length(!is.na(test2))  
+# 31 isn't the answer I want to see, so something is wrong
+# length is simply returning how long the vector is, inclusive of NAs
+
+# !is.na returns a "true" or "false".
+# "true"/"false" are also seen as "1"/"0", and we can add:
+sum(!is.na(test2))  
+# and that gave me what I wanted to see
+```
+
+
+#### end of aside  
+
+***  
+***  
+
+
+
+```{r}
+# so combine those for standard error, and don't forget the `sqrt`:
+
+```
+
+
+See why that might be annoying to type over and over again? And how it could be prone to error?  
+
+
+Okay, so what can we generalize here? What are we repeating?  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+`test$temp_f`, right?  
+
+
+So let's assign that to something, and replace the specific value in our code with the variable `x`:  
+
+```{r}
+
+```
+
+
+Now we could make another variable our `x` and find its standard error.  
+
+```{r}
+
+```
+
+
+
+We're still copying and pasting, but it's general. So we're most of the way to the function. We need to wrap it up like this, in `()` and `{}`, and come up with a name:  
+
+```{r}
+
+```
+
+Run the above chunk of code. Now you can see `sterr` in your Environment pane as a function!  And you use it like any other function:  
+
+```{r}
+
+```
+
+
+Let's check it on our bigger data frame!  
+
+```{r}
+
+```
+
+### Your Turn 1  
+
+Use `group_by`, `summarize`, and our new `sterr` function to generate a table of standard error by month, by station, for `temp_f`. Does the standard error at `gndblwq` for January (month 1) match our output from above?    
+
+```{r}
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```{r}
+wq_trimmed %>% 
+  group_by(station_code, month) %>% 
+  summarize(temp_f_sterr = sterr(temp_f))
+```
+
+
+
+### Your Turn 2  
+
+Now **you** write a function! Name it `divide_by_10`. The input should be a vector (like we did with `sterr`), and the output should be each value of that vector divided by 10.  
+
+Remember to get it working *before* you wrap it up into a function.  
+
+```{r}
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```{r}
+test$sal / 10
+
+divide_by_10 <- function(x){
+  x/10
+}
+
+divide_by_10(test$sal)
+```
+
+
+### Your Turn 3   
+
+
+Now. What if we want to divide by something other than 10? Generalize the function to take two arguments as input. The second input (call it `y`) should be the denominator in your `divide_by` function.  
+
+```{r}
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Did you get this?  
+
+```{r}
+test$sal / 10
+
+divide_by <- function(x, y){
+  x / y
+}
+
+
+```
+
+It's always a good idea to make sure you get output you expect!  
+
+
+## Setting default values for arguments  
+
+So, once you have a working function, you can continue to build on it and make it more flexible. 
+
+The next thing we'll do is set a default argument for `y` - if nothing else is specified, our function will divide the input vector by 10. This is done in the argument definition:  
+
+```{r}
+divide_by <- function(x, y = 10){
+  x / y
+}
+
+
+```
+
+
+Remember, it's a good idea to put the *data* argument first.
+
+
+
+
+
+### Your Turn 4  
+
+Change the names of the arguments in this function from `x` and `y` to `num` (to represent numerator) and `denom` (for denominator). Make sure it still works.
+
+```{r}
+divide_by <- function(x, y = 10){
+  x / y
+}
+
+
+```
+
+
+
+### Aside - other function testing  
+
+What do you think will happen if we run these lines of code?  
+
+```{r, eval = FALSE}
+
+divide_by(test$sal, "a")
+
+divide_by(test$sal, TRUE)
+
+divide_by(test$station_code, 10)
+```
+
+
+We've been checking all along to make sure we get output we expect in simple cases. It's also a good idea to see what will happen if you feed your function something you *shouldn't* and make sure it fails. Notice that it did *not* fail when we tried to divide by "TRUE" - that's because R sees TRUE as 1 and FALSE as 0. We might want it to fail in this case!
+
+```{r, eval = FALSE}
+divide_by <- function(num, denom = 10){
+  stopifnot(is.numeric(num), is.numeric(denom))
+  num / denom
+}
+
+# things that should work
+divide_by(test$sal, 10)
+divide_by(test$sal, 100)
+divide_by(test$sal, test$do_pct)
+divide_by(test$sal)
+divide_by(denom = 100, num = test$sal)
+
+# things that should fail
+divide_by(test$sal, "a")
+divide_by(test$sal, TRUE)
+divide_by(test$station_code, 10)
+```
+
+For more thorough testing, check out the `testthat` and `assertthat` packages.
+
+### end aside  
+
+***  
+***  
+
+
+# Functions using graphs  
+
+What we've done so far today has been very tidyverse-heavy. The tidyverse reduces  cognitive burden when it comes to interactively exploring and analyzing data. However, it does mean that when you're writing your own functions that build on tidyverse functions, you need to handle the code a bit differently.  
+
+First we'll make a simple plot. I'm not claiming that this is pretty.  
+
+```{r}
+
+```
+
+
+Say we want to make this plot for a variety of pairs of parameters, and our data frame may not always be called `wq_trimmmed`. So these are three arguments that we want to be able to specify. When we use RStudio's menu to extract a function, it gives us four - it includes the data frame as the first argument - and it looks like this:    
+
+```{r}
+
+```
+
+
+So let's change some names and see what happens.  
+
+```{r}
+
+```
+
+Let's see what happens when we try.....
+
+```{r, eval = FALSE}
+
+```
+
+
+Working interactively in the tidyverse is easy because it bypasses some of the rules that R uses to associate function arguments with names in the data. This makes it a bit trickier to use some of our favorite tidyverse functions inside functions that we write. Recently, however, tidyverse developers made it easier to deal with this problem; and now we need to simply wrap the arguments that will change inside two curly braces `{{ }}`.  
+
+```{r}
+
+
+ # we may want to go up into our function
+# and specify that we want to turn the "col" argument into a factor
+
+ # or we can just force it for this one function call
+
+# try it yourself!  
+```
+
+If in doubt, wrap it in "curly curly" `{{ }}`.
+
+
+
+#### Aside  
+
+Note that to facet, it's not quite as simple, and you have to use `var( {{ }} )`, without the `~`, inside your function. I don't know why, but this answer in the [RStudio Community forum](https://community.rstudio.com/t/problem-with-facet-wrap-and-curly-curly/36975) helped me figure it out.  
+
+```{r}
+my_plot <- function(data, param1, param2, param3) {
+  ggplot(data) +
+    geom_point(aes(x = {{param1}}, y = {{param2}}, col = factor({{param3}}))) +
+    facet_wrap(vars( {{param3}} ))
+}
+
+my_plot(wq_trimmed, sal, do_pct, station_code)
+my_plot(wq_trimmed, sal, do_pct, month)
+```
+
+
+#### end aside
+
+
+### Your Turn 5  
+
+Add theme elements to the plot in your `my_plot` function to make it a plot you actually *want* to reproduce. Then use your function on at least two combinations of parameters (we suggest `do_pct` vs `temp`, and `do_pct` vs `sal`).  
+
+```{r}
+
+```
+
+
+
+
+# For Loops  
+
+Sometimes you want to run a function on several different data frames. There are, as tends to be the case with R, many ways to do this. The one we will discuss today is the "for loop":  **For** `each thing` **in** `some set of things`, **do** `something`.  
+
+If you already hate or soon grow to hate for loops, check out the `purrr` package (this is a tidyverse solution; there are several good tutorials online) and/or the `apply` family of functions (base R).  
+
+
+Some things about for loops in R:  
+
++  the index starts at 1  (in other languages indexing starts at 0)  
++  if you want to save the results, you have to pre-allocate the output
+
+
+A very simple thing to do with a for loop is print each element of it.  
+
+```{r}
+
+```
+
+
+Let's make a vector of fruit types, and use a loop to print each fruit. Notice that here, we don't want to print the value of `i` itself, but we want to print the `i`th member of something. So we use square brackets `[ ]` around `i`.    
+
+```{r}
+
+```
+
+
+Of course, we can do more than just print. We can dress it up!    
+
+```{r}
+
+```
+
+
+A "safer" way to describe the elements you're iterating over is the `seq_along` function instead of `1:something`. This way, if for some reason you have an empty vector, you won't confuse R.  
+
+
+```{r}
+
+```
+
+
+As with functions, it's a good idea to get some code working before you write it into a loop. And before you get too far: manually set `i`, run only the code inside the curly braces, and make sure you get the output you expect:  
+
+```{r}
+
+
+# want to see it use "apple"
+
+  
+
+```
+
+```{r}
+
+
+# want to see it use "banana"
+
+  
+
+```
+
+
+
+### Your Turn 6  
+
+Now, imagine you've never heard of `ggplot2`'s `facet` capabilities, and you want to make a separate "`my_plot`" for each station in the datset.    
+
+First, make a vector of unique `station_code`s in `wq_trimmed` (Hint: look up the function `unique`).
+
+```{r, eval = FALSE}
+my_stns <- 
+```
+
+Now, fill in the skeleton below of a loop to print out `my_plot` for each station.  
+
+```{r, eval = FALSE}
+
+for(i in ----(my_stns)){
+  wq_sub <- wq_trimmed %>% 
+    ------(station_code == my_stns[i])
+  
+  print(my_plot(wq_sub, sal, do_pct, station_code))
+}
+```
+
+
+Notice a few things here:  
+
++  `wq_sub` and `i` both appear in the Global Environment.  
++  the plotting function is wrapped in `print()` - you have to explicitly print ggplots from inside a for loop. (In general, if you don't see what you think you should see when you run the loop, try wrapping it in `print()`.)  
++  we printed the plot, but you could do other things like use `ggsave` to save it to a directory on your computer. You will have to figure out how to automatically generate unique names from within the loop! (it's a matter of pasting)
+
+
+
+## pre-allocating memory for output  
+
+If you want to save the results of the output (as opposed to just printing them to your screen), you need to set up some way to store that output *before* the loop itself. As an example, let's say you didn't remember that `group_by()` and `summarize()` exist, and you want to write a loop where you calculate the mean salinity for each station.  
+
+Here's how you could print it out.  
+
+```{r}
+
+```
+
+But say we want to save those values for later. We can set up vectors for output. We want these to be the same length as the group over which we're iterating. (Note: you don't want to loop over a data frame; it gets very, very slow. It's better to make vectors and bind them together at the end, with `cbind`/`rbind` or `dplyr::bind_cols`/`bind_rows`.)    
+
+```{r}
+
+```
+
+
+Now we use our for loop to write over each of those in turn.  
+
+```{r}
+
+```
+
+What have we done?  
+
++  replaced `print` with an object to store the value in  
++  used the `i` index value to specify *where* in that output vector we want the value from each iteration of the loop  
+
+
+### Your Turn 7  
+
+In one loop, calculate mean temperature and mean depth for each station, and print the results. Remember to set up output vectors first.  
+
+```{r}
+
+```
+
+***  
+***  
+
+## Extending this idea  
+
+This concept can be extended to files in a folder on your computer: read in a file, make a bunch of graphs, and save them out as a pdf. Or read in all your daily files for the week, append them together (look up `bind_rows()` in the `dplyr` package), and save out a single weekly file. We will practice some of this in the final challenge.    
