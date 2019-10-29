@@ -1,12 +1,13 @@
 ---
-title: "Working with data: main dplyr verbs"
+title: 'Working with data: main dplyr verbs'
 author: "Kim Cressman"
-output: 
-    html_document:
-        toc: true
-        toc_depth: 3
-        toc_float:
-            collapsed: false
+output:
+  html_document:
+    toc: yes
+    toc_depth: 3
+    toc_float:
+      collapsed: no
+    df_print: tibble
 ---
 
 ```{r setup, include=FALSE}
@@ -16,9 +17,9 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r, message = FALSE, warning = FALSE}
 library(dplyr)
 library(tidyr)
+library(lubridate)
 library(here)
 library(ggplot2)
-library(lubridate)
 ```
 
 
@@ -43,7 +44,7 @@ glimpse(ebird)   # 183,742 rows
 
 
 
-We may not talk about this, but there are (presumably accidentally) duplicate rows in this data frame. We can see them with:  
+We may not talk about this in the workshop, but there are (presumably accidentally) duplicate rows in this data frame. We can see them with:  
 
 ```{r}
 janitor::get_dupes(ebird)   # 22 duplicates = 11 that need to go
@@ -61,12 +62,24 @@ glimpse(ebird)   # 183,731 rows
 
 ## Choose _rows_: `filter()`  
 
-This has a lot of rows. We might only be interested in observations about a single bird species, or from a single state, which means we want to choose rows. To do this, we use the verb `filter()`:  
+This has a lot of rows. We might only be interested in observations about a single bird species, or from a single state, which means we want to choose rows. To do this, we use the verb `filter()`. The data argument comes first, then the condition.    
+
+```{r}
+filter(ebird, state == "AK")
+```
+
+Alternately, we can use the pipe, which feeds the data frame resulting from everything before it into whatever is next (read it as "and then....")  
+
+```{r}
+ebird %>% 
+    filter(state == "AK")
+```
+
+Let's go ahead and assign it to a data frame so we can explore it a little more.  
 
 ```{r}
 ebird_AK <- ebird %>% 
-        filter(state == "AK")
-# equivalent to: filter(ebird, state == "AK")
+    filter(state == "AK")
 glimpse(ebird_AK)
 ```
 
@@ -88,8 +101,8 @@ We can filter based on more than one criterion, e.g. if we want all birds from A
 
 ```{r}
 ebird_AK_2008 <- ebird %>% 
-        filter(state == "AK",
-               year == 2008)
+    filter(state == "AK",
+           year == 2008)
 head(ebird_AK_2008)
 ```
 
@@ -100,15 +113,15 @@ Because we're just experimenting with filtering here, and don't really need to s
 
 ```{r}
 ebird %>% 
-        filter(state == "AK",
-               year == 2008) 
+    filter(state == "AK",
+           year == 2008) 
 ```
 
 Note, that's not something you want to do if you actually need to work with the data frame later!  
 
 ***
 
-### mini-challenge 1  
+### Your Turn 1  
 
 How could we pull out birds in Alaska (AK), before 2010? (Hint: you can use the same symbols on year that you would use with any other numbers)  
 
@@ -129,6 +142,7 @@ my_states <- c("AK", "AL", "MS")
 ```
 
 And then use `%in%` in the filter statement, to say, e.g. "any of the states _in_ this vector": 
+
 ```{r}
 ebird_mystates <- ebird %>% 
     filter(year == 2008,
@@ -149,7 +163,7 @@ ebird %>%
 ```
 
 
-### mini-challenge 2  
+### Your Turn 2  
 
 How would you filter the data to contain only the species "American Coot" from MS and FL (your instructors' states), in all years *except* 2010? Assign this object to a data frame and verify (using `unique()`) that you did it right.    
 
@@ -201,8 +215,8 @@ You can also move just one or a few columns to the beginning by specifying it/th
 
 ```{r}
 ebird %>% 
-        select(year, everything()) %>% 
-        glimpse()
+    select(year, everything()) %>% 
+    glimpse()
 ```
 
 
@@ -214,16 +228,16 @@ In our little example, let's keep columns whose names start with 's':
 
 ```{r}
 ebird %>% 
-        select(starts_with("s")) %>% 
-        glimpse()
+    select(starts_with("s")) %>% 
+    glimpse()
 ```
 
 Or columns that end with 'e':  
 
 ```{r}
 ebird %>% 
-        select(ends_with("e")) %>% 
-        glimpse()
+    select(ends_with("e")) %>% 
+    glimpse()
 ```
 
 Check out the data wrangling cheat sheet for more helper functions. 
@@ -232,7 +246,7 @@ Check out the data wrangling cheat sheet for more helper functions.
 
 
 
-### mini-challenge 3  
+### Your Turn 3  
 
 From the ebird data, subset to only include the species American Coot, from the states FL, AL, and MS. Keep only the state, year, and presence columns. What is the proper order of operations in this case?  
 
@@ -246,7 +260,7 @@ From the ebird data, subset to only include the species American Coot, from the 
 
 ## Setup for the next bit of the workshop  
 
-We're going to switch datasets here, to one that's a little more complicated: water quality data! Shannon has downloaded monitoring data from several National Estuarine Research Reserves for the year 2016, and has already winnowed it down a bit to daily averages of several parameters that we measure. We will use your newfound `select()` and `filter()` skills to make it an even smaller data frame, and then we'll learn how to calculate new columns and do some group-wise summaries.  
+We're going to switch datasets here, to one that's a little more complicated: water quality data! Shannon has downloaded monitoring data from several National Estuarine Research Reserves for the year 2016, and has already winnowed it down a bit to daily averages of several parameters that we measure. We will use your newfound `select()` and `filter()` skills to make it an even smaller data frame, and then we'll learn how to calculate new columns and do group-wise summaries.  
 
 ```{r}
 wq <- read.csv(here::here("data", "daily_wq.csv"), stringsAsFactors = FALSE)
@@ -254,7 +268,7 @@ glimpse(wq)
 ```
 
 
-### mini-challenge 4  
+### Your Turn 4  
 
 Because this is so important, I will provide working code in a chunk below. But please attempt it yourself first!!!  
 
@@ -278,7 +292,7 @@ We have read in the daily water quality data for a few stations. Create a new da
 
 
 
-### mini-challenge 4 answer   
+### Your Turn 4 answer   
 
 Last chance to try it yourself.... 
 but if you didn't get it to work, run this chunk:  
@@ -324,27 +338,28 @@ View(wq_trimmed)
 You can also use other columns. You can use them in mathematical expressions, or just combine them:        
 
 ```{r}
-wq_trimmed <- wq_trimmed %>% 
-    mutate(monthday = paste(month, day, sep = "-"),
-           meaningless_thing = sal + temp)
-View(wq_trimmed)
+wq_trimmed %>% 
+    mutate(monthday = paste(month, day, sep = "-"),  # see ?paste for more info
+           meaningless_thing = sal + temp) %>% 
+    View()
 ```
 
 
 You can even use a column immediately after creating it!  
 
 ```{r}
-wq_trimmed %>% 
+wq_trimmed <- wq_trimmed %>% 
     mutate(monthday = paste(month, day, sep = "-"),
            meaningless_thing = sal + temp,
-           even_more_meaningless_thing = meaningless_thing + 5) %>% 
-    View()
+           even_more_meaningless_thing = meaningless_thing + 5)
+
+View(wq_trimmed)
 ```
 
 
 
 
-### mini-challenge 5  
+### Your Turn 5  
 
 There are two parts to this. You can approach them separately or within the same series of pipes. Remember to save the result as the new, better, `wq_trimmed` data frame!   
 
@@ -352,7 +367,7 @@ There are two parts to this. You can approach them separately or within the same
 2.  The same person that wants to see `depth` in feet rather than meters *also* wants you to turn `temp` into Fahrenheit, from Celsius. You've looked up the conversion. Now create a new column, `temp_f`, with the new variable.   **F = (9/5)(temp in C) + 32**
 
 
-As with mini-challenge 4, the answer is below. No peeking!  
+As with Your Turn 4, the answer is below. No peeking!  
 
 
 ```{r}
@@ -368,7 +383,7 @@ As with mini-challenge 4, the answer is below. No peeking!
 
 
 
-### mini-challenge 5 answer  
+### Your Turn 5 answer  
 
 ```{r}
 wq_trimmed <- wq_trimmed %>% 
@@ -400,7 +415,7 @@ glimpse(dates_df)
 
 If you try to make a time-series graph, it might work; but it will be very, very slow when you have more than 3 values. You also run the risk of dates being shuffled so they're out of order. So we really want those dates to be *dates*.  
 
-This seems like it should be easy in base R, using the `as.Date()` function, but that can give you the wrong output (without so much as a warning!) if your date isn't formatted the way it wants to see it:  
+This seems like it should be easy in base R, using the `as.Date()` function, but that can give you the wrong output (without so much as a warning!) if your date isn't formatted the way the function thinks it should be:  
 
 ```{r}
 dates_df %>% 
@@ -447,12 +462,12 @@ dates_df %>%
 ```
 
 
-If you only work with times in their own column, the `hms` library may help you out. There are differences between operating systems and software versions in how Excel stores dates and times in its brain, so be VERY CAREFUL and check your transformed data to make sure you have the output you think you have!  
+If you only work with times in their own column, the `hms` library may help you out. There are differences between operating systems and software versions in how Excel stores dates and times in its brain, so **be VERY CAREFUL** and check your transformed data to make sure you have the output you think you have!  
 
 
-### mini-challenge 6  
+### Your Turn 6  
 
-`mutate` can be used to add a complete vector of the same value. That is what we'll do below. Fill in the skeleton code to create a column for a full yyyy-mm-dd style date, then make a *line* graph of temperature throughout the year at the water quality stations and color them by station code.  
+`mutate` can be used to add a complete vector of the same value. That is what we'll do below. Fill in the skeleton code to create a column for a full yyyy-mm-dd style date, then make a *line* graph of temperature throughout the year at the water quality stations, and color them by station code.  
 
 Which of these stations do you think is at the NERR in Alaska?  
 
@@ -497,7 +512,7 @@ ebird %>%
 
 
 
-### mini-challenge 7  
+### Your Turn 7  
 
 How would you group the `wq_trimmed` dataset to calculate monthly average temperature and salinity, and their standard deviations, at each station?  
 
@@ -515,7 +530,7 @@ How would you group the `wq_trimmed` dataset to calculate monthly average temper
 
 
 
-### mini-challenge 7 answer  
+### Your Turn 7 answer  
 
 ```{r}
 wq_trimmed %>% 
@@ -599,7 +614,7 @@ ebird %>%
 
 
 
-### mini-challenge 8  
+### Your Turn 8  
 
 Use the `wq_trimmed` data frame. Calculate monthly average temp, sal, and do_pct (at least - more variables if you like) *for each station*. Make a scatterplot using any two of these variables. Use what you've learned about `ggplot2`'s options to adjust the look and feel of the graph. Is the relationship what you expected it to be? Does it vary by site?     
 
@@ -619,7 +634,7 @@ Use the `wq_trimmed` data frame. Calculate monthly average temp, sal, and do_pct
 
 
 
-Here's one possible way to go about it. You could also make a new data frame of the summary variables, and use that in a separate call to `ggplot` - which might be a better way to do it, especially if you'll want to make more than just one graph using that same information.  
+Here's one possible way to go about it. You could also make a new data frame of the summary variables, and use that in a separate call to `ggplot`.  
 
 ```{r}
 wq_trimmed %>% 
