@@ -2,11 +2,12 @@
 title: "Functions and Loops"
 author: "Kim Cressman"
 output: 
-    html_document:
-        toc: true
-        toc_depth: 3
-        toc_float:
-            collapsed: false
+  html_document:
+    toc: yes
+    toc_depth: 3
+    toc_float:
+      collapsed: no
+    df_print: tibble
 ---
 
 ```{r setup, include=FALSE}
@@ -187,7 +188,7 @@ Let's check it on our bigger data frame!
 sterr(wq_trimmed$temp_f)
 ```
 
-### mini-challenge 1  
+### Your Turn 1  
 
 Use `group_by`, `summarize`, and our new `sterr` function to generate a table of standard error by month, by station, for `temp_f`. Does the standard error at `gndblwq` for January (month 1) match our output from above?    
 
@@ -224,7 +225,7 @@ wq_trimmed %>%
 
 
 
-### (not-so-) mini-challenge 2  
+### Your Turn 2  
 
 Now **you** write a function! Name it `divide_by_10`. The input should be a vector (like we did with `sterr`), and the output should be each value of that vector divided by 10.  
 
@@ -270,7 +271,7 @@ divide_by_10(test$sal)
 ```
 
 
-### mini-challenge 3   
+### Your Turn 3   
 
 
 Now. What if we want to divide by something other than 10? Generalize the function to take two arguments as input. The second input (call it `y`) should be the denominator in your `divide_by` function.  
@@ -334,7 +335,7 @@ Remember, it's a good idea to put the *data* argument first.
 
 
 
-### mini-challenge 4  
+### Your Turn 4  
 
 Change the names of the arguments in this function from `x` and `y` to `num` (to represent numerator) and `denom` (for denominator). Make sure it still works.
 
@@ -471,7 +472,7 @@ my_plot(wq_trimmed, sal, do_pct, month)
 #### end aside
 
 
-### mini-challenge 5  
+### Your Turn 5  
 
 Add theme elements to the plot in your `my_plot` function to make it a plot you actually *want* to reproduce. Then use your function on at least two combinations of parameters (we suggest `do_pct` vs `temp`, and `do_pct` vs `sal`).  
 
@@ -484,7 +485,7 @@ Add theme elements to the plot in your `my_plot` function to make it a plot you 
 
 # For Loops  
 
-Sometimes you want to run a function on several different data frames. There are, as tends to be the case wtih R, many ways to do this. The one we will discuss today is the "for loop":  **For** `each thing` **in** `some set of things`, **do** `something`.  
+Sometimes you want to run a function on several different data frames. There are, as tends to be the case with R, many ways to do this. The one we will discuss today is the "for loop":  **For** `each thing` **in** `some set of things`, **do** `something`.  
 
 If you already hate or soon grow to hate for loops, check out the `purrr` package (this is a tidyverse solution; there are several good tutorials online) and/or the `apply` family of functions (base R).  
 
@@ -556,7 +557,7 @@ i <- 2
 
 
 
-### mini-challenge 6  
+### Your Turn 6  
 
 Now, imagine you've never heard of `ggplot2`'s `facet` capabilities, and you want to make a separate "`my_plot`" for each station in the datset.    
 
@@ -605,7 +606,7 @@ for(i in seq_along(my_stns)){
 }
 ```
 
-But say we want to save those values for later. We can set up vectors for output. We want these to be the same length as the group over which we're iterating.    
+But say we want to save those values for later. We can set up vectors for output. We want these to be the same length as the group over which we're iterating. (Note: you don't want to loop over a data frame; it gets very, very slow. It's better to make vectors and bind them together at the end, with `cbind`/`rbind` or `dplyr::bind_cols`/`bind_rows`.)    
 
 ```{r}
 stns_out <- rep("dummy_value", length(my_stns))
@@ -632,7 +633,20 @@ stns_out; mean_sal_out
 What have we done?  
 
 +  replaced `print` with an object to store the value in  
-+  used the `i` index value to specify *where* in that output vector we want the value from each iteration of the loop
++  used the `i` index value to specify *where* in that output vector we want the value from each iteration of the loop  
 
+
+### Your Turn 7  
+
+In one loop, calculate mean temperature and mean depth for each station, and print the results. Remember to set up output vectors first.  
+
+```{r}
+
+```
+
+***  
+***  
+
+## Extending this idea  
 
 This concept can be extended to files in a folder on your computer: read in a file, make a bunch of graphs, and save them out as a pdf. Or read in all your daily files for the week, append them together (look up `bind_rows()` in the `dplyr` package), and save out a single weekly file. We will practice some of this in the final challenge.    

@@ -1,0 +1,280 @@
+---
+title: "Working with data: tidyr and pivoting"
+author: "Kim Cressman"
+output:
+  html_document:
+    toc: yes
+    toc_depth: 3
+    toc_float:
+      collapsed: no
+    df_print: tibble
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, message = FALSE, warning = FALSE}
+library(dplyr)
+library(tidyr)
+library(here)
+library(stringr)
+library(ggplot2)
+```
+
+```{r}
+ebird <- read.csv(here::here("data", "eBird_workshop.csv"), stringsAsFactors = FALSE)
+ebird <- dplyr::distinct(ebird)
+
+wq <- read.csv(here::here("data", "daily_wq.csv"), stringsAsFactors = FALSE)
+wq_trimmed <- wq %>%
+    select(station_code, month, day, temp, sal, do_pct, depth) %>%
+    filter(!is.na(depth)) %>%
+    mutate(depth_ft = depth * 3.28,
+           temp_f = (9/5) * temp + 32)
+```
+
+
+# Moving data around with `tidyr`  
+
+## What is tidy data?  
+
+The following is a summary of *Tidy Data* by Hadley Wickham (2014), a paper that is in your "other resources" folder for this workshop.  
+
+Tidy data is rectangular data where:  
+
++  every **variable** is in its own column  
++  every **observation** is in its own row  
++  every **value** is in its own cell (it belongs to one variable and one observation)   
+
+How do we define *variable*?  "A variable contains all values that measure the same underlying *attribute* (like height, temperature, duration) across units."  
+
+And *observation*?  "An observation contains all values measured on the same *unit* (like a person, or a day, or a race) across attributes."  
+
+
+
+Run the following code chunk to generate "toy data" to follow along with the slides. `tribble` lets us create tibbles (the tidyverse version of a data frame) by row.    
+
+```{r}
+cases <- tribble(
+        ~Country, ~"2011", ~"2012", ~"2013",
+        "FR",    7000,    6900,    7000,
+        "DE",    5800,    6000,    6200,
+        "US",   15000,   14000,   13000
+)
+
+
+pollution <- tribble(
+        ~city, ~size, ~amount,
+        "New York", "large",      23,
+        "New York", "small",      14,
+        "London", "large",      22,
+        "London", "small",      16,
+        "Beijing", "large",     121,
+        "Beijing", "small",     121
+)
+```
+
+
+
+The two major functions in `tidyr` are `pivot_longer()` to make your data frame tall and narrow, and `pivot_wider()` to make it shorter and wider. If you've ever heard of/used `gather()` and `spread()`, these are newer, better versions. `gather()` and `spread()` won't go away, but they are *deprecated* - no longer under active development. It is best to start using the new `pivot` functions moving forward. If you *haven't* heard of these functions, you are about to learn a very useful topic.     
+
+
+
+Here are a couple blank code chunks so you can type along with the slides.  
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+
+
+Very often, wide data is the most readable for people. Let's look at an example.    
+
+
+## Background on the dataset for this section  
+
+CITATION:
+Boyd WA, Smith MV, Co CA, Pirone JR, Rice JR, Shockley KR, Freedman JH. 2016. Developmental effects of the ToxCast Phase I and II chemicals in Caenorhabditis elegans and corresponding responses in zebrafish, rats, and rabbits. Environ Health Perspect 124:586-593; http://dx.doi.org/10.1289/ehp.1409645.  
+
+
+CONCLUSIONS:
+Here, we present an assay that quantitatively and reliably describes the effects of chemical toxicants on C. elegans growth and development. We found significant overlap in the activity of chemicals in the ToxCast libraries between C. elegans and zebrafish developmental screens. Incorporating C. elegans toxicological assays as part of a battery of in vitro and in vivo assays provides additional information for the development of models to predict a chemical's potential toxicity to humans.
+
+
+The paper can be found here: https://ehp.niehs.nih.gov/doi/10.1289/ehp.1409645  
+
+And the original spreadsheet can be downloaded from the supplemental materials, here:  https://ehp.niehs.nih.gov/doi/suppl/10.1289/ehp.1409645
+
+It is "ehp.1409645.s002.xlsx" in the zip download.  
+
+
+## Check out the data  
+
+
+Let's first take a look at the file. I have already done some cleanup and greatly reduced the number of rows - this file originally had 960 rows! I've only kept the first 20. It's not hard to see why it was stored in this wide format. But for certain purposes, it needs to be rearranged into a longer format, and that can be done with just a few lines of code. (It really blows people's minds when you tell them you can "easily" rearrange so much data.)  
+
+
+```{r}
+tox <- -----(here::here("data", "C_elegans_tox.csv"), stringsAsFactors = FALSE) 
+
+```
+
+
+
+We'll subset to just the portion that we might want to re-shape, which is the columns with both *C. elegans* response and a concentration in the column name, as well as identifier columns. In this case it was easiest to look at the data frame and decide that it's the first 10 columns, rather than trying to figure out the syntax to select using column names or helper functions.    
+
+```{r}
+
+```
+
+
+## `pivot_longer()`  
+
+We want to do a few things here: we want a single column for the value of mean *C. elegans* response, and we want to extract the concentrations from the column names and turn them into a variable that we'll call "conc".  
+
+Let's start without worrying about messing with the column names. This is the format we'd use. If we didn't have so many columns to pivot, we could use the column names rather than positions ("4:10").  
+
+```{r}
+
+```
+
+Think about how we just changed the data frame. This is the key of the `pivot` functions: moving between the shape we started with and the shape we just made. All the other stuff is just details - when you understand the long/wide shapes, you're most of the way to doing what you need.  
+
+
+
+
+We could also select the columns to pivot by what they start with (or end with, or contain):  
+
+```{r}
+
+```
+
+
+
+We can get rid of common prefixes by using `names_prefix`:  
+
+```{r}
+
+```
+
+
+
+We can also separate the names column into multiple columns as we pivot. I've used underscores (`_`) in the column names that split them into four separate components:  
+
++  "*C. elegans*"  
++  "response"  
++  a concentration (varies by column)  
++  units - "uM"  
+
+Periods, parentheses, brackets, and some other symbols have special meaning in R and if you want to use them as separators, you'll need to look up *"regular expressions"*. This is why I used underscores - they keep it relatively simple.  
+
+When you separate based on a character, you need to make sure to provide the correct number of new column names:   
+
+```{r}
+
+```
+
+
+If you noticed above, `conc` was still a character after we pivoted. We want to make some graphs, so we need it to be a number. There is a way to do this inside the call to `pivot`, but at this point it's easier to use what we already know.
+
+### Your Turn 1  
+
+What `dplyr` function should be used in the following code chunk, to turn `conc` into a number?  
+
+
+```{r, eval = FALSE}
+tox_cleaned %>% 
+    pivot_longer(cols = starts_with("C.elegans_response"), 
+                 names_to = c("org", "what", "conc", "units"),
+                 names_sep = "_",
+                 values_to = "response") %>% 
+    ----(conc = as.numeric(conc))
+```
+
+
+
+Do that, and then fill in the `----`s below to make a plot with response on the y-axis, conc on the x-axis, and facets by chemical name. Add themes, a nice title, and whatever other color and label options you like. Also, look up `?scale_x_log10` to see how to use it, and see if that's a good thing to add to the graph.     
+
+```{r, eval = FALSE}
+tox_cleaned %>% 
+    pivot_longer(cols = starts_with("C.elegans_response"), 
+                 names_to = c("org", "what", "conc", "units"),
+                 names_sep = "_",
+                 values_to = "response") %>% 
+    ----(conc = as.numeric(conc)) %>% 
+    ggplot(aes(x = conc, y = response)) +
+    geom_point() +
+    ----(~ Name)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+### fully pivoted with all clean-up done:  
+
+And saved as its own data frame.  
+
+```{r}
+
+```
+
+A few graphs. We can use all of the `ggplot` knowledge from before!    
+
+```{r}
+
+
+```
+
+
+You can get more complicated too, by using `pivot_longer_spec()` if you want to keep multiple columns after pivoting (for example, if you had columns for standard deviation in the response in addition to mean response, and wanted to collapse it into `mean_response` and `sd_response` columns for each concentration). Check out `vignette("pivot")` for more details.
+
+
+
+## `pivot_wider()`  
+
+
+The opposite of `pivot_longer()` is `pivot_wider()`. Sometimes you have one observation split over multiple rows, and you want to make certain variables be their own columns. To learn how it works, we'll widen the *C. elegans* dataset back out. This same concept also works on other data sets.    
+
+```{r}
+
+```
+
+Remember that we'd turned that concentration column into a numeric format, and now numbers are the column names, which R doesn't particularly like. So we might want to combine the organism column with the concentration column, and we can do that by concatinating them in the `names_from` argument:  
+
+```{r}
+
+```
+
+So with this dataset, we've gone from wide to long, and back again. 
+
+
+## Your Turn 2  
+
+Using the ebird dataset, filter the data frame to only include data from the `year` 2012; remove the `samplesize` column; then pivot so that each `state` is a column header, each row is a species, and the value in each cell is `presence` for that state/species combination.  
+
+```{r}
+
+```
+
+
+***  
+***  
+ 
